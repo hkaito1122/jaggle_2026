@@ -1,0 +1,44 @@
+[2026-08-05 08:13:34] [INFO] === [02_baseline] 実験開始 ===
+[2026-08-05 08:13:34] [INFO] 結合後 Train Shape: (2761, 74), Test Shape: (2502, 73)
+[2026-08-05 08:13:34] [INFO] X_train Shape: (2761, 57), X_test Shape: (2502, 57)
+[2026-08-05 08:13:34] [INFO] --- TabNet 学習開始 ---
+[2026-08-05 08:13:52] [INFO] TabNet CV Score: 0.6659
+[2026-08-05 08:13:52] [INFO] --- HistGradientBoosting 学習開始 ---
+[2026-08-05 08:14:01] [INFO] HistGradientBoosting CV Score: 0.6320
+[2026-08-05 08:14:01] [INFO] --- Logistic Regression 学習開始 ---
+[2026-08-05 08:14:01] [INFO] Logistic Regression CV Score: 0.5948
+[2026-08-05 08:14:01] [INFO] --- Neural Network 学習開始 ---
+[2026-08-05 08:14:03] [INFO] Neural Network CV Score: 0.6153
+[2026-08-05 08:14:03] [INFO] 
+==================================================
+[2026-08-05 08:14:03] [INFO] 全モデルの結果一覧:
+[2026-08-05 08:14:03] [INFO] 
+                  Model  CV Score (LogLoss)
+2   Logistic Regression            0.594821
+3        Neural Network            0.615275
+1  HistGradientBoosting            0.631963
+0                TabNet            0.665946
+[2026-08-05 08:14:03] [INFO] ==================================================
+[2026-08-05 08:14:03] [INFO] === Optuna ハイパーパラメータ最適化テスト開始 ===
+[2026-08-05 08:14:03] [INFO] --- TabNet Optuna 最適化開始 ---
+[2026-08-05 08:14:29] [INFO] TabNet Optuna Best Score: 1.4396
+[2026-08-05 08:14:29] [INFO] TabNet Best Params: {'n_splits': 5, 'seed': 42, 'save_dir': '/Users/hayashikaito/Library/CloudStorage/GoogleDrive-1122hkaito@gmail.com/マイドライブ/jaggle_2026/data/output/20260805/models', 'n_trials': 3, 'max_epochs': 10, 'patience': 10, 'batch_size': 256, 'n_d': 42, 'n_a': 48, 'n_steps': 3, 'gamma': 1.9699098521619942, 'lambda_sparse': 0.0003142880890840109, 'lr': 0.00026587543983272726, 'mask_type': 'entmax'}
+[2026-08-05 08:14:29] [INFO] --- HistGradientBoosting Optuna 最適化開始 ---
+[2026-08-05 08:14:56] [INFO] HistGradientBoosting Optuna Best Score: 0.6047
+[2026-08-05 08:14:56] [INFO] HistGradientBoosting Best Params: {'n_splits': 5, 'seed': 42, 'save_dir': '/Users/hayashikaito/Library/CloudStorage/GoogleDrive-1122hkaito@gmail.com/マイドライブ/jaggle_2026/data/output/20260805/models', 'n_trials': 3, 'learning_rate': 0.012184186502221764, 'max_iter': 447, 'max_depth': 10, 'min_samples_leaf': 72, 'l2_regularization': 1.5320059381854043e-08, 'max_bins': 249}
+[2026-08-05 08:14:56] [INFO] --- Logistic Regression Optuna 最適化開始 ---
+[2026-08-05 08:14:59] [INFO] Logistic Regression Optuna Best Score: 0.5919
+[2026-08-05 08:14:59] [INFO] Logistic Regression Best Params: {'n_splits': 5, 'seed': 42, 'save_dir': '/Users/hayashikaito/Library/CloudStorage/GoogleDrive-1122hkaito@gmail.com/マイドライブ/jaggle_2026/data/output/20260805/models', 'n_trials': 3, 'C': 0.39079671568228824, 'penalty': 'l1'}
+[2026-08-05 08:14:59] [INFO] --- Neural Network Optuna 最適化開始 ---
+[2026-08-05 08:15:03] [INFO] Neural Network Optuna Best Score: 0.6085
+[2026-08-05 08:15:03] [INFO] Neural Network Best Params: {'n_splits': 5, 'seed': 42, 'save_dir': '/Users/hayashikaito/Library/CloudStorage/GoogleDrive-1122hkaito@gmail.com/マイドライブ/jaggle_2026/data/output/20260805/models', 'n_trials': 3, 'epochs': 10, 'patience': 10, 'batch_size': 256, 'learning_rate': 0.003967605077052989, 'dropout': 0.34044600469728353, 'n_layers': 4, 'hidden_dim_0': 64, 'hidden_dim_1': 512, 'hidden_dim_2': 448, 'hidden_dim_3': 128}
+[2026-08-05 08:15:03] [INFO] 
+==================================================
+[2026-08-05 08:15:03] [INFO] Optuna最適化結果一覧:
+[2026-08-05 08:15:03] [INFO] 
+                  Model  Optuna Best Score (LogLoss)
+2   Logistic Regression                     0.591867
+1  HistGradientBoosting                     0.604747
+3        Neural Network                     0.608514
+0                TabNet                     1.439629
+[2026-08-05 08:15:03] [INFO] ==================================================

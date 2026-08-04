@@ -79,3 +79,52 @@ class CatBoostLoglossMetric(object):
             weight_sum += w
 
         return error_sum, weight_sum
+
+
+# -------------------------------------------------------------------
+# 新規モデル用の評価関数 (TabNet, HistGB, Logistic, NN)
+# -------------------------------------------------------------------
+
+
+def tabnet_logloss_eval(
+    y_true: np.ndarray, y_pred: np.ndarray
+) -> float:
+    """TabNet用 Log Loss 評価関数
+    
+    TabNetのeval_metricに'logloss'を指定しているため、
+    この関数は主にCV後の評価やログ記録に使用
+    """
+    return calculate_logloss(y_true, y_pred)
+
+
+def histgb_logloss_eval(
+    y_true: np.ndarray, y_pred: np.ndarray
+) -> float:
+    """HistGradientBoosting用 Log Loss 評価関数
+    
+    HistGradientBoostingClassifierは内部でlog_lossを使用するため、
+    この関数は主にCV後の評価やログ記録に使用
+    """
+    return calculate_logloss(y_true, y_pred)
+
+
+def logistic_logloss_eval(
+    y_true: np.ndarray, y_pred: np.ndarray
+) -> float:
+    """Logistic Regression用 Log Loss 評価関数
+    
+    LogisticRegressionはpredict_probaで確率を出力するため、
+    この関数は主にCV後の評価やログ記録に使用
+    """
+    return calculate_logloss(y_true, y_pred)
+
+
+def nn_logloss_eval(
+    y_true: np.ndarray, y_pred: np.ndarray
+) -> float:
+    """Neural Network用 Log Loss 評価関数
+    
+    PyTorchのBCEWithLogitsLossまたはBCELossを使用した学習後、
+    この関数は主にCV後の評価やログ記録に使用
+    """
+    return calculate_logloss(y_true, y_pred)
