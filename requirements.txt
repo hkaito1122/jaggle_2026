@@ -1,0 +1,16 @@
+# データ処理・基本ライブラリ
+numpy>=1.24.0
+pandas>=2.0.0
+scikit-learn>=1.2.0
+
+# 機械学習モデル
+lightgbm>=4.0.0
+xgboost>=2.0.0
+catboost>=1.2.0
+
+# ハイパーパラメータ自動チューニング
+optuna>=3.0.0
+
+# ノートブック環境（Jupyter等）
+jupyter
+ipykernel

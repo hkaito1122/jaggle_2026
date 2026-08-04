@@ -1,0 +1,5 @@
+cd "/Users/hayashikaito/Library/CloudStorage/GoogleDrive-1122hkaito@gmail.com/マイドライブ/jaggle_2026"
+python3 -m venv .venv
+source .venv/bin/activate
+pip install --upgrade pip
+pip install -r requirements.txt
