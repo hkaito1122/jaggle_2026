@@ -1,0 +1,11 @@
+# 1. 変更されたファイル・追加されたファイルを確認
+git status
+
+# 2. 変更・修正したファイルをステージングに追加
+git add .
+
+# 3. 変更内容をコミット（分かりやすいメッセージを記載）
+git commit -m "fix: binary logloss metric support and run baseline test successfully"
+
+# 4. GitHub リモートリポジトリの main ブランチへ送信
+git push origin main

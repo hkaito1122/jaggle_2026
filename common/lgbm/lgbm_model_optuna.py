@@ -1,15 +1,14 @@
-# common/lgbm/lgbm_model_optuna.py
-import copy
+import os
+from pathlib import Path
 from typing import Any, Dict, Tuple
 
 import lightgbm as lgb
 import numpy as np
 import optuna
 import pandas as pd
-from sklearn.metrics import mean_squared_error
-from sklearn.model_selection import KFold
+from sklearn.model_selection import StratifiedKFold  # 分類用に StratifiedKFold を使用
 
-# Optunaのログ出力を必要最小限に制御
+# ログを静かにする設定
 optuna.logging.set_verbosity(optuna.logging.WARNING)
 
 
@@ -25,7 +24,7 @@ def _preprocess_categorical(df: pd.DataFrame) -> pd.DataFrame:
 def run_lgb_optuna(
     data: Dict[str, pd.DataFrame], params: Dict[str, Any]
 ) -> Tuple[Dict[str, Any], Dict[str, Any]]:
-    """Optunaを用いてLightGBMのハイパーパラメータ探索を実行する関数
+    """Optunaを用いてLightGBMのハイパーパラメータ探索を交差検証（CV）ベースで実行する関数
 
     Parameters
     ----------
@@ -33,16 +32,13 @@ def run_lgb_optuna(
         'X_train': 学習用特徴量
         'y_train': 学習用ターゲット
     params : Dict[str, Any]
-        固定パラメータおよびOptuna制御用パラメータ
-        必須キー: 'n_trials', 'n_splits', 'seed' など
+        固定パラメータおよび探索用制御パラメータ ('n_splits', 'seed', 'n_trials' など)
 
     Returns
     -------
     Tuple[Dict[str, Any], Dict[str, Any]]
-        1. result_data : Optunaの探索結果を含む辞書
-           - 'best_score': 最良のCVスコア
-           - 'study'     : optuna.Study オブジェクト
-        2. best_params : 最適化されたパラメータ（lgbm_model.py の run_lgb にそのまま渡せます）
+        1. result_data  : 'best_score', 'best_params', 'study' オブジェクトを含む辞書
+        2. best_params  : 最適化された全パラメータ（固定パラメータ + ベスト探索パラメータ）
     """
     X_train = data.get("X_train")
     y_train = data.get("y_train")
@@ -53,46 +49,49 @@ def run_lgb_optuna(
         )
 
     # 1. 制御用パラメータの取り出し
-    base_params = copy.deepcopy(params)
-    n_trials = base_params.pop("n_trials", 20)
-    n_splits = base_params.pop("n_splits", 5)
-    seed = base_params.pop("seed", 42)
-    stopping_rounds = base_params.pop("early_stopping_rounds", 50)
-    direction = base_params.pop("direction", "minimize")
+    params_exec = params.copy()
+    n_splits = params_exec.pop("n_splits", 5)
+    seed = params_exec.pop("seed", 42)
+    n_trials = params_exec.pop("n_trials", 20)
+    early_stopping_rounds = params_exec.pop("early_stopping_rounds", 50)
 
-    # 2. カテゴリ変数の前処理
+    # 二元分類タスクかの自動判定
+    objective = params_exec.get("objective", "binary")
+    is_binary = objective in ["binary", "binary_logloss"]
+
+    # 2. カテゴリ変数の型変換
     X_train_proc = _preprocess_categorical(X_train)
 
-    # 3. Optuna の目的関数（Objective）の定義
-    def objective(trial: optuna.Trial) -> float:
-        # 試行ごとに最適化するパラメータ空間の設定
-        # common/lgbm/lgbm_model_optuna.py 内の trial_params 提案
+    # 3. Optuna の目的関数（Objective）を定義
+    def objective_func(trial: optuna.Trial) -> float:
+        # 探索するハイパーパラメータ範囲の設定
         trial_params = {
-            # 学習率と木の構成
-            "learning_rate": trial.suggest_float("learning_rate", 0.005, 0.1, log=True),
-            "num_leaves": trial.suggest_int("num_leaves", 15, 255),
-            "max_depth": trial.suggest_int("max_depth", 3, 12),
+            "learning_rate": trial.suggest_float(
+                "learning_rate", 0.01, 0.2, log=True
+            ),
+            "num_leaves": trial.suggest_int("num_leaves", 15, 127),
+            "max_depth": trial.suggest_int("max_depth", 3, 10),
             "min_child_samples": trial.suggest_int("min_child_samples", 5, 100),
-            # サンプリング（過学習防止）
-            "subsample": trial.suggest_float("subsample", 0.4, 1.0),
-            "subsample_freq": trial.suggest_int("subsample_freq", 1, 7),
-            "colsample_bytree": trial.suggest_float("colsample_bytree", 0.4, 1.0),
-            # L1 / L2 正則化
+            "subsample": trial.suggest_float("subsample", 0.5, 1.0),
+            "colsample_bytree": trial.suggest_float("colsample_bytree", 0.5, 1.0),
             "reg_alpha": trial.suggest_float("reg_alpha", 1e-8, 10.0, log=True),
-            "reg_lambda": trial.suggest_float("reg_lambda", 1e-8, 10.0, log=True),
-            # カテゴリ変数の平滑化（カテゴリ特徴量が多い場合効果的）
-            "cat_smooth": trial.suggest_float("cat_smooth", 1.0, 100.0),
+            "reg_lambda": trial.suggest_float(
+                "reg_lambda", 1e-8, 10.0, log=True
+            ),
         }
 
-        # ベースとなる固定パラメータと結合
-        current_params = base_params.copy()
-        current_params.update(trial_params)
+        # 固定パラメータと合体
+        current_params = {**params_exec, **trial_params}
 
-        # 簡易CV評価ループ
-        kf = KFold(n_splits=n_splits, shuffle=True, random_state=seed)
+        # Stratified K-Fold による交差検証
+        skf = StratifiedKFold(
+            n_splits=n_splits, shuffle=True, random_state=seed
+        )
         oof_preds = np.zeros(len(X_train_proc))
 
-        for train_idx, val_idx in kf.split(X_train_proc, y_train):
+        for fold, (train_idx, val_idx) in enumerate(
+            skf.split(X_train_proc, y_train)
+        ):
             X_tr, y_tr = X_train_proc.iloc[train_idx], y_train.iloc[train_idx]
             X_va, y_va = X_train_proc.iloc[val_idx], y_train.iloc[val_idx]
 
@@ -104,30 +103,49 @@ def run_lgb_optuna(
                 train_set=trn_data,
                 valid_sets=[trn_data, val_data],
                 callbacks=[
-                    lgb.early_stopping(stopping_rounds, verbose=False),
+                    lgb.early_stopping(
+                        early_stopping_rounds, verbose=False
+                    ),
                     lgb.log_evaluation(period=0),
                 ],
             )
-            oof_preds[val_idx] = model.predict(
-                X_va, num_iteration=model.best_iteration
-            )
 
-        # 評価指標の算出 (例: RMSE)
-        score = np.sqrt(mean_squared_error(y_train, oof_preds))
+            val_preds = model.predict(X_va)
+
+            # 確率値の判定とクリッピング
+            if is_binary:
+                val_preds = np.clip(val_preds, 1e-15, 1.0 - 1e-15)
+
+            oof_preds[val_idx] = val_preds
+
+        # CV評価スコアの計算 (Log Loss)
+        if is_binary:
+            from sklearn.metrics import log_loss
+
+            score = log_loss(y_train, oof_preds)
+        else:
+            from sklearn.metrics import mean_squared_error
+
+            score = np.sqrt(mean_squared_error(y_train, oof_preds))
+
         return score
 
-    # 4. Optuna によるチューニングの実行
-    sampler = optuna.samplers.TPESampler(seed=seed)
-    study = optuna.create_study(direction=direction, sampler=sampler)
-    study.optimize(objective, n_trials=n_trials)
+    # 4. Optuna Study の作成と最適化実行 (Log Loss 最小化のため direction="minimize")
+    study = optuna.create_study(
+        direction="minimize", sampler=optuna.samplers.TPESampler(seed=seed)
+    )
+    study.optimize(objective_func, n_trials=n_trials)
 
-    # 5. 最良パラメータを全体の元パラメータ（n_splitsやseedなど）と統合して作成
-    best_params = copy.deepcopy(params)
-    best_params.update(study.best_params)
+    # 5. ベストパラメータの合成（固定設定パラメータを復元）
+    best_trial_params = study.best_params
+    best_params = {
+        **params,
+        **best_trial_params,
+    }
 
-    # 6. 戻り値の作成
     result_data = {
         "best_score": study.best_value,
+        "best_params": best_trial_params,
         "study": study,
     }
 

@@ -1,20 +1,30 @@
-# common/catboost/cat_model_optuna.py
-import copy
+import os
+from pathlib import Path
 from typing import Any, Dict, Tuple
 
 import numpy as np
 import optuna
 import pandas as pd
 from catboost import CatBoostClassifier, CatBoostRegressor, Pool
-from sklearn.metrics import log_loss, mean_squared_error
-from sklearn.model_selection import KFold
+from sklearn.model_selection import StratifiedKFold
 
+# ログを静かにする設定
 optuna.logging.set_verbosity(optuna.logging.WARNING)
+
+
+def _preprocess_categorical(df: pd.DataFrame) -> Tuple[pd.DataFrame, list]:
+    """object 型の列を CatBoost 用に文字列/カテゴリ型へ変換し、カテゴリ列名リストを返す内部関数"""
+    df = df.copy()
+    cat_cols = df.select_dtypes(include=["object", "category"]).columns.tolist()
+    for col in cat_cols:
+        df[col] = df[col].astype(str)
+    return df, cat_cols
 
 
 def run_cat_optuna(
     data: Dict[str, pd.DataFrame], params: Dict[str, Any]
 ) -> Tuple[Dict[str, Any], Dict[str, Any]]:
+    """Optunaを用いてCatBoostのハイパーパラメータ探索を交差検証（CV）ベースで実行する関数"""
     X_train = data.get("X_train")
     y_train = data.get("y_train")
 
@@ -23,103 +33,114 @@ def run_cat_optuna(
             "data には 'X_train' と 'y_train' が含まれている必要があります。"
         )
 
-    # 1. 制御用パラメータの取り出し
-    base_params = copy.deepcopy(params)
-    n_trials = base_params.pop("n_trials", 20)
-    n_splits = base_params.pop("n_splits", 5)
-    seed = base_params.pop("seed", 42)
-    stopping_rounds = base_params.pop("early_stopping_rounds", 50)
-    direction = base_params.pop("direction", "minimize")
+    # 1. 制御用パラメータの取り出し (CatBoost本体へ渡さないものを削除)
+    params_exec = params.copy()
+    n_splits = params_exec.pop("n_splits", 5)
+    seed = params_exec.pop("seed", 42)
+    n_trials = params_exec.pop("n_trials", 20)
+    early_stopping_rounds = params_exec.pop("early_stopping_rounds", 50)
+    
+    # ★重要: CatBoost の初期化引数に含まれない制御パラメータを除外
+    params_exec.pop("save_dir", None)
+    params_exec.pop("verbose", None)
 
-    # CatBoostに直接渡さない非モデル引数を掃除
-    base_params.pop("save_dir", None)
-    base_params.pop("verbose", None)
-
-    # タスク判定（分類 vs 回帰）
-    is_classification = base_params.get("loss_function", "").lower() in [
-        "logloss",
-        "cross_entropy",
-    ] or base_params.get("eval_metric", "").lower() in [
-        "logloss",
-        "auc",
-        "accuracy",
-    ]
-
-    # 2. カテゴリ変数の処理
-    cat_cols = list(
-        X_train.select_dtypes(include=["object", "category"]).columns
+    # 二元分類タスクかの自動判定
+    loss_function = params_exec.get(
+        "loss_function", params_exec.get("eval_metric", "Logloss")
     )
-    X_train_proc = X_train.copy()
-    for col in cat_cols:
-        X_train_proc[col] = X_train_proc[col].astype(str)
+    is_binary = loss_function.lower() in ["logloss", "binary"]
 
-    # 3. Optuna 目的関数
-    def objective(trial: optuna.Trial) -> float:
-        # common/catboost/cat_model_optuna.py 内の trial_params 提案
+    # 2. カテゴリ変数の前処理とリスト取得
+    X_train_proc, cat_cols = _preprocess_categorical(X_train)
+
+    # 共通固定設定
+    params_exec["random_seed"] = seed
+    params_exec["early_stopping_rounds"] = early_stopping_rounds
+    params_exec["verbose"] = False
+
+    # 3. Optuna の目的関数（Objective）を定義
+    def objective_func(trial: optuna.Trial) -> float:
+        # 探索するハイパーパラメータ範囲の設定
         trial_params = {
-            # 学習率と木の構造
-            "learning_rate": trial.suggest_float("learning_rate", 0.005, 0.1, log=True),
-            "depth": trial.suggest_int("depth", 4, 10),
-            # 正則化と構造制御
-            "l2_leaf_reg": trial.suggest_float("l2_leaf_reg", 1.0, 20.0, log=True),
+            "learning_rate": trial.suggest_float(
+                "learning_rate", 0.01, 0.2, log=True
+            ),
+            "depth": trial.suggest_int("depth", 3, 10),
+            "l2_leaf_reg": trial.suggest_float("l2_leaf_reg", 1e-3, 10.0, log=True),
             "random_strength": trial.suggest_float(
                 "random_strength", 1e-9, 10.0, log=True
             ),
-            "bagging_temperature": trial.suggest_float("bagging_temperature", 0.0, 1.0),
-            # 特徴量の量子化（数値特徴量の分割数）
-            "border_count": trial.suggest_int("border_count", 32, 255),
+            "bagging_temperature": trial.suggest_float(
+                "bagging_temperature", 0.0, 1.0
+            ),
         }
 
-        current_params = base_params.copy()
-        current_params.update(trial_params)
+        # 固定パラメータと合体
+        current_params = {**params_exec, **trial_params}
 
-        kf = KFold(n_splits=n_splits, shuffle=True, random_state=seed)
+        # Stratified K-Fold による交差検証
+        skf = StratifiedKFold(
+            n_splits=n_splits, shuffle=True, random_state=seed
+        )
         oof_preds = np.zeros(len(X_train_proc))
 
-        for train_idx, val_idx in kf.split(X_train_proc, y_train):
+        for fold, (train_idx, val_idx) in enumerate(
+            skf.split(X_train_proc, y_train)
+        ):
             X_tr, y_tr = X_train_proc.iloc[train_idx], y_train.iloc[train_idx]
             X_va, y_va = X_train_proc.iloc[val_idx], y_train.iloc[val_idx]
 
-            train_pool = Pool(X_tr, y_tr, cat_features=cat_cols)
+            trn_pool = Pool(X_tr, y_tr, cat_features=cat_cols)
             val_pool = Pool(X_va, y_va, cat_features=cat_cols)
 
-            if is_classification:
-                model = CatBoostClassifier(
-                    **current_params,
-                    random_seed=seed,
-                    early_stopping_rounds=stopping_rounds,
-                    verbose=False,
-                )
-                model.fit(train_pool, eval_set=val_pool)
-                oof_preds[val_idx] = model.predict_proba(val_pool)[:, 1]
+            if is_binary:
+                model = CatBoostClassifier(**current_params)
             else:
-                model = CatBoostRegressor(
-                    **current_params,
-                    random_seed=seed,
-                    early_stopping_rounds=stopping_rounds,
-                    verbose=False,
-                )
-                model.fit(train_pool, eval_set=val_pool)
-                oof_preds[val_idx] = model.predict(val_pool)
+                model = CatBoostRegressor(**current_params)
 
-        if is_classification:
+            model.fit(
+                trn_pool,
+                eval_set=val_pool,
+                use_best_model=True,
+            )
+
+            # 確率値の取り出しとクリッピング
+            if is_binary:
+                val_preds = model.predict_proba(val_pool)[:, 1]
+                val_preds = np.clip(val_preds, 1e-15, 1.0 - 1e-15)
+            else:
+                val_preds = model.predict(val_pool)
+
+            oof_preds[val_idx] = val_preds
+
+        # CV評価スコアの計算 (Log Loss)
+        if is_binary:
+            from sklearn.metrics import log_loss
+
             score = log_loss(y_train, oof_preds)
         else:
+            from sklearn.metrics import mean_squared_error
+
             score = np.sqrt(mean_squared_error(y_train, oof_preds))
 
         return score
 
-    # 4. チューニング実行
-    sampler = optuna.samplers.TPESampler(seed=seed)
-    study = optuna.create_study(direction=direction, sampler=sampler)
-    study.optimize(objective, n_trials=n_trials)
+    # 4. Optuna Study の作成と最適化実行
+    study = optuna.create_study(
+        direction="minimize", sampler=optuna.samplers.TPESampler(seed=seed)
+    )
+    study.optimize(objective_func, n_trials=n_trials)
 
-    # 5. 最良パラメータ返却
-    best_params = copy.deepcopy(params)
-    best_params.update(study.best_params)
+    # 5. ベストパラメータの合成
+    best_trial_params = study.best_params
+    best_params = {
+        **params,
+        **best_trial_params,
+    }
 
     result_data = {
         "best_score": study.best_value,
+        "best_params": best_trial_params,
         "study": study,
     }
 

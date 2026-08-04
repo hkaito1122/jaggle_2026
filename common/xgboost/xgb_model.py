@@ -1,4 +1,3 @@
-# common/xgboost/xgb_model.py
 import os
 from pathlib import Path
 from typing import Any, Dict, Tuple
@@ -6,7 +5,7 @@ from typing import Any, Dict, Tuple
 import numpy as np
 import pandas as pd
 import xgboost as xgb
-from sklearn.model_selection import KFold
+from sklearn.model_selection import StratifiedKFold  # 分類用に StratifiedKFold を使用
 
 
 def _preprocess_categorical(df: pd.DataFrame) -> pd.DataFrame:
@@ -31,6 +30,7 @@ def run_xgb(
         'X_test' : (任意) テスト用特徴量
     params : Dict[str, Any]
         XGBoostのハイパーパラメータおよび制御用パラメータ
+        必須・推奨キー: 'n_splits', 'seed', 'save_dir', 'early_stopping_rounds' など
 
     Returns
     -------
@@ -55,27 +55,27 @@ def run_xgb(
     stopping_rounds = params_exec.pop("early_stopping_rounds", 50)
     verbose_eval = params_exec.pop("verbose_eval", False)
 
+    # 二元分類（binary）かどうかの自動判定
+    objective = params_exec.get("objective", "binary:logistic")
+    is_binary = objective in ["binary:logistic", "binary:logitraw", "binary:hinge"]
+
     # 2. カテゴリ変数の型変換
     X_train_proc = _preprocess_categorical(X_train)
     X_test_proc = (
         _preprocess_categorical(X_test) if X_test is not None else None
     )
 
-    # 3. 配列の初期化
-    kf = KFold(n_splits=n_splits, shuffle=True, random_state=seed)
+    # 3. 配列の初期化（分類用に StratifiedKFold を使用）
+    skf = StratifiedKFold(n_splits=n_splits, shuffle=True, random_state=seed)
     oof_preds = np.zeros(len(X_train_proc))
     test_preds = np.zeros(len(X_test_proc)) if X_test_proc is not None else None
     models = []
 
-    # テスト用 DMatrix（一度だけ生成）
-    dtest = (
-        xgb.DMatrix(X_test_proc, enable_categorical=True)
-        if X_test_proc is not None
-        else None
-    )
+    # DMatrix 用のカテゴリ有効化フラグ
+    params_exec["enable_categorical"] = True
 
-    # 4. K-Fold 交差検証ループ
-    for fold, (train_idx, val_idx) in enumerate(kf.split(X_train_proc, y_train)):
+    # 4. Stratified K-Fold 交差検証ループ
+    for fold, (train_idx, val_idx) in enumerate(skf.split(X_train_proc, y_train)):
         X_tr, y_tr = X_train_proc.iloc[train_idx], y_train.iloc[train_idx]
         X_va, y_va = X_train_proc.iloc[val_idx], y_train.iloc[val_idx]
 
@@ -84,7 +84,6 @@ def run_xgb(
 
         evals = [(dtrain, "train"), (dval, "val")]
 
-        # XGBoost の学習実行
         model = xgb.train(
             params=params_exec,
             dtrain=dtrain,
@@ -93,10 +92,22 @@ def run_xgb(
             verbose_eval=100 if verbose_eval else False,
         )
 
-        oof_preds[val_idx] = model.predict(dval)
+        # --- 予測処理 ---
+        val_preds = model.predict(dval)
 
-        if dtest is not None:
-            test_preds += model.predict(dtest) / n_splits
+        # 二元分類（binary）の場合、確率を 1e-15 〜 1-1e-15 にクリッピング
+        if is_binary:
+            val_preds = np.clip(val_preds, 1e-15, 1.0 - 1e-15)
+
+        oof_preds[val_idx] = val_preds
+
+        # テストデータの予測（前処理済みの X_test_proc を使用）
+        if X_test_proc is not None:
+            dtest = xgb.DMatrix(X_test_proc, enable_categorical=True)
+            t_preds = model.predict(dtest)
+            if is_binary:
+                t_preds = np.clip(t_preds, 1e-15, 1.0 - 1e-15)
+            test_preds += t_preds / n_splits
 
         models.append(model)
 
