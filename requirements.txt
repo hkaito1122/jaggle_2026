@@ -3,6 +3,10 @@ numpy>=1.24.0
 pandas>=2.0.0
 scikit-learn>=1.2.0
 
+# 可視化ライブラリ（★追加）
+matplotlib>=3.7.0
+seaborn>=0.12.0
+
 # 機械学習モデル
 lightgbm>=4.0.0
 xgboost>=2.0.0

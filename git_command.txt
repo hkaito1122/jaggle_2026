@@ -9,3 +9,12 @@ git commit -m "fix: binary logloss metric support and run baseline test successf
 
 # 4. GitHub リモートリポジトリの main ブランチへ送信
 git push origin main
+
+
+
+Databricks上でのgit更新
+# 最新の変更を取得
+runGit(
+    operation="pull",
+    repoPath="/Workspace/Users/1122hkaito@gmail.com/jaggle_2026"
+)

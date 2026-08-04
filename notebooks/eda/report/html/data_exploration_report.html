@@ -1,0 +1,707 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>10年定着予測 - 探索的データ分析レポート</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
+            line-height: 1.8;
+            color: #333;
+            background-color: #f8f9fa;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        h1 {
+            color: #2c3e50;
+            border-bottom: 4px solid #3498db;
+            padding-bottom: 15px;
+            margin-bottom: 30px;
+            font-size: 2.2em;
+        }
+        
+        h2 {
+            color: #34495e;
+            margin-top: 40px;
+            margin-bottom: 20px;
+            padding-left: 15px;
+            border-left: 5px solid #3498db;
+            font-size: 1.8em;
+        }
+        
+        h3 {
+            color: #546e7a;
+            margin-top: 30px;
+            margin-bottom: 15px;
+            font-size: 1.4em;
+        }
+        
+        h4 {
+            color: #607d8b;
+            margin-top: 20px;
+            margin-bottom: 10px;
+            font-size: 1.2em;
+        }
+        
+        p {
+            margin-bottom: 15px;
+            text-align: justify;
+        }
+        
+        ul, ol {
+            margin-left: 30px;
+            margin-bottom: 20px;
+        }
+        
+        li {
+            margin-bottom: 8px;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background-color: white;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        
+        th {
+            background-color: #3498db;
+            color: white;
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+        }
+        
+        td {
+            padding: 12px;
+            border-bottom: 1px solid #ecf0f1;
+        }
+        
+        tr:hover {
+            background-color: #f8f9fa;
+        }
+        
+        code {
+            background-color: #f4f4f4;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: "Courier New", monospace;
+            font-size: 0.9em;
+        }
+        
+        pre {
+            background-color: #2c3e50;
+            color: #ecf0f1;
+            padding: 20px;
+            border-radius: 5px;
+            overflow-x: auto;
+            margin: 20px 0;
+        }
+        
+        pre code {
+            background-color: transparent;
+            color: #ecf0f1;
+            padding: 0;
+        }
+        
+        .header-info {
+            background-color: #ecf0f1;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 30px;
+        }
+        
+        .header-info p {
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+        
+        .summary-box {
+            background-color: #e8f5e9;
+            border-left: 4px solid #4caf50;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+        
+        .warning-box {
+            background-color: #fff3e0;
+            border-left: 4px solid #ff9800;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+        
+        .info-box {
+            background-color: #e3f2fd;
+            border-left: 4px solid #2196f3;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+        
+        hr {
+            border: none;
+            border-top: 2px solid #ecf0f1;
+            margin: 40px 0;
+        }
+        
+        strong {
+            color: #2c3e50;
+            font-weight: 600;
+        }
+        
+        .toc {
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-radius: 5px;
+            margin-bottom: 30px;
+        }
+        
+        .toc h2 {
+            margin-top: 0;
+            font-size: 1.5em;
+        }
+        
+        .toc ul {
+            list-style-type: none;
+            margin-left: 0;
+        }
+        
+        .toc li {
+            margin-bottom: 8px;
+        }
+        
+        .toc a {
+            color: #3498db;
+            text-decoration: none;
+        }
+        
+        .toc a:hover {
+            text-decoration: underline;
+        }
+        
+        @media print {
+            body {
+                background-color: white;
+                padding: 0;
+            }
+            
+            .container {
+                box-shadow: none;
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>10年定着予測 - 探索的データ分析レポート</h1>
+        
+        <div class="header-info">
+            <p><strong>プロジェクト</strong>: HR Analytics 10年定着予測</p>
+            <p><strong>分析日</strong>: 2026年8月5日</p>
+            <p><strong>分析者</strong>: Data Science Team</p>
+        </div>
+
+        <div class="summary-box">
+            <h2 style="margin-top:0; border:none; padding:0;">エグゼクティブサマリー</h2>
+            
+            <p>本レポートは、社員の入社後2年間（0-23ヶ月）のデータから、入社10年後（120ヶ月時点）の在籍を予測する機械学習モデル構築に向けた探索的データ分析の結果をまとめたものです。</p>
+            
+            <h3 style="margin-top:20px;">主要な発見</h3>
+            <ul>
+                <li><strong>定着率</strong>: 56.47%（1,559名が定着、1,202名が退職）と比較的バランスの取れたデータ</li>
+                <li><strong>強い予測因子</strong>: 入社時年齢、前職経験月数、初任給が目的変数と正の相関（0.13-0.15）</li>
+                <li><strong>時系列パターン</strong>: 残業時間、研修時間、360度評価スコアに定着・退職の明確な違い</li>
+                <li><strong>欠損値</strong>: 前職職種（73%）、顧客満足度評価（65%）、担当プロジェクト数（48%）に高い欠損率</li>
+            </ul>
+        </div>
+
+        <hr>
+
+        <h2>1. データ概要</h2>
+        
+        <h3>1.1 データセット構成</h3>
+        
+        <table>
+            <thead>
+                <tr>
+                    <th>ファイル名</th>
+                    <th>行数</th>
+                    <th>列数</th>
+                    <th>単位</th>
+                    <th>用途</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>employee_persona_train.csv</td>
+                    <td>2,761</td>
+                    <td>20</td>
+                    <td>社員1名</td>
+                    <td>学習用社員属性データ</td>
+                </tr>
+                <tr>
+                    <td>employee_persona_test.csv</td>
+                    <td>2,502</td>
+                    <td>19</td>
+                    <td>社員1名</td>
+                    <td>評価用社員属性データ</td>
+                </tr>
+                <tr>
+                    <td>employee_monthly_train.csv</td>
+                    <td>65,754</td>
+                    <td>29</td>
+                    <td>社員×月</td>
+                    <td>学習用月次データ（0-23ヶ月）</td>
+                </tr>
+                <tr>
+                    <td>employee_monthly_test.csv</td>
+                    <td>60,048</td>
+                    <td>29</td>
+                    <td>社員×月</td>
+                    <td>評価用月次データ（0-23ヶ月）</td>
+                </tr>
+                <tr>
+                    <td>employee_monthly_train_full.csv</td>
+                    <td>257,509</td>
+                    <td>29</td>
+                    <td>社員×月</td>
+                    <td>分析用長期月次データ（0-119ヶ月）</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h3>1.2 属性データのカラム（20列）</h3>
+        
+        <p><strong>基本情報</strong>: 社員ID、入社日、入社区分、入社時年齢、最終学歴、専攻分野、前職経験月数、前職職種、採用経路、性別</p>
+        <p><strong>配属情報</strong>: 初期職種、初期部署ID、初期勤務地、初期等級、初期役割、初任給</p>
+        <p><strong>テキストデータ</strong>: 入社時メモ、上司からのフィードバック、同僚からのフィードバック</p>
+        <p><strong>目的変数</strong>: 10年定着ラベル（Trainのみ）</p>
+
+        <h3>1.3 月次データのカラム（29列）</h3>
+        
+        <p>基本情報、所属情報、360度評価（親和度、信頼度、主体度、学習度、共有貢献度）、業務指標、勤務状況、育成・交流などを含む</p>
+
+        <hr>
+
+        <h2>2. 欠損値分析</h2>
+        
+        <h3>2.1 属性データの欠損値</h3>
+        
+        <table>
+            <thead>
+                <tr>
+                    <th>カラム名</th>
+                    <th>欠損件数</th>
+                    <th>欠損率</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>前職職種</td>
+                    <td>2,025件</td>
+                    <td>73.34%</td>
+                </tr>
+            </tbody>
+        </table>
+        
+        <p><strong>考察</strong>: 前職職種の高い欠損率は、新卒入社者が多いことを示唆しています。この変数は、欠損値自体を「新卒」を示す情報として扱うことができます。</p>
+
+        <h3>2.2 月次データの欠損値</h3>
+        
+        <table>
+            <thead>
+                <tr>
+                    <th>カラム名</th>
+                    <th>欠損件数</th>
+                    <th>欠損率</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>顧客満足度評価</td>
+                    <td>42,969件</td>
+                    <td>65.35%</td>
+                </tr>
+                <tr>
+                    <td>担当プロジェクト数</td>
+                    <td>31,228件</td>
+                    <td>47.49%</td>
+                </tr>
+                <tr>
+                    <td>360度評価（各項目）</td>
+                    <td>13,593件</td>
+                    <td>20.67%</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="info-box">
+            <h4 style="margin-top:0;">対応方針</h4>
+            <ul>
+                <li>欠損値を「該当なし」カテゴリとして扱う</li>
+                <li>欠損フラグを追加特徴量として作成</li>
+                <li>時系列での欠損パターンを特徴化</li>
+            </ul>
+        </div>
+
+        <hr>
+
+        <h2>3. 目的変数の分析</h2>
+        
+        <h3>3.1 定着率</h3>
+        
+        <div class="info-box">
+            <p><strong>定着（1）</strong>: 1,559名 (56.47%)</p>
+            <p><strong>退職（0）</strong>: 1,202名 (43.53%)</p>
+            <p style="margin-top:15px;"><strong>定着率</strong>: 0.5647 (56.47%)</p>
+        </div>
+        
+        <h3>3.2 考察</h3>
+        
+        <ul>
+            <li><strong>クラスバランス</strong>: 比較的バランスが良い（56:44）ため、特別なクラス不均衡対策は不要</li>
+            <li><strong>ベースライン</strong>: 全員に定着率0.5647を予測した場合のLog Lossは約0.68</li>
+            <li><strong>評価指標</strong>: Log Lossは確率の精度を重視するため、予測確率の校正（calibration）が重要</li>
+        </ul>
+
+        <hr>
+
+        <h2>4. 属性データの探索</h2>
+        
+        <h3>4.1 数値変数の基本統計量</h3>
+        
+        <h4>入社時年齢</h4>
+        <table>
+            <thead>
+                <tr>
+                    <th></th>
+                    <th>平均</th>
+                    <th>標準偏差</th>
+                    <th>中央値</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>退職(0)</strong></td>
+                    <td>23.57</td>
+                    <td>3.45</td>
+                    <td>23</td>
+                </tr>
+                <tr>
+                    <td><strong>定着(1)</strong></td>
+                    <td>24.80</td>
+                    <td>4.51</td>
+                    <td>23</td>
+                </tr>
+            </tbody>
+        </table>
+        <p><strong>差異</strong>: 定着者の方が平均1.2歳高い</p>
+        
+        <h4>前職経験月数</h4>
+        <table>
+            <thead>
+                <tr>
+                    <th></th>
+                    <th>平均</th>
+                    <th>標準偏差</th>
+                    <th>中央値</th>
+                    <th>75%</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>退職(0)</strong></td>
+                    <td>13.78</td>
+                    <td>35.87</td>
+                    <td>0</td>
+                    <td>0</td>
+                </tr>
+                <tr>
+                    <td><strong>定着(1)</strong></td>
+                    <td>26.73</td>
+                    <td>50.06</td>
+                    <td>0</td>
+                    <td>40</td>
+                </tr>
+            </tbody>
+        </table>
+        <p><strong>差異</strong>: 定着者の方が前職経験が約2倍長い</p>
+        
+        <h4>初任給</h4>
+        <table>
+            <thead>
+                <tr>
+                    <th></th>
+                    <th>平均</th>
+                    <th>中央値</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>退職(0)</strong></td>
+                    <td>239,801円</td>
+                    <td>231,000円</td>
+                </tr>
+                <tr>
+                    <td><strong>定着(1)</strong></td>
+                    <td>254,723円</td>
+                    <td>234,000円</td>
+                </tr>
+            </tbody>
+        </table>
+        <p><strong>差異</strong>: 定着者の方が約15,000円高い</p>
+
+        <h3>4.2 相関分析</h3>
+        
+        <table>
+            <thead>
+                <tr>
+                    <th>変数名</th>
+                    <th>目的変数との相関係数</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>入社時年齢</td>
+                    <td>0.1487</td>
+                </tr>
+                <tr>
+                    <td>前職経験月数</td>
+                    <td>0.1430</td>
+                </tr>
+                <tr>
+                    <td>初任給</td>
+                    <td>0.1316</td>
+                </tr>
+            </tbody>
+        </table>
+        
+        <p><strong>考察</strong>: すべて正の相関を示し、相関係数は0.13-0.15と弱~中程度ですが、予測モデルでは有効な特徴量となる可能性が高いです。</p>
+
+        <hr>
+
+        <h2>5. 月次データの時系列分析</h2>
+        
+        <h3>5.1 主要な時系列パターン</h3>
+        
+        <h4>残業時間</h4>
+        <ul>
+            <li><strong>退職社員</strong>: 入社直後から残業時間が多く、時間経過とともに増加傾向</li>
+            <li><strong>定着社員</strong>: 残業時間が比較的少なく、安定的に推移</li>
+            <li><strong>相関</strong>: 入社月の残業時間と目的変数で負の相関（-0.16）</li>
+        </ul>
+        
+        <h4>360度評価スコア</h4>
+        <ul>
+            <li><strong>定着社員</strong>: すべての評価項目で高いスコア</li>
+            <li><strong>退職社員</strong>: 評価スコアが低い傾向</li>
+            <li>評価は入社後数ヶ月経過してから実施されるため、時系列での変化パターンが重要</li>
+        </ul>
+
+        <hr>
+
+        <h2>6. 特徴量エンジニアリングの提案</h2>
+        
+        <h3>6.1 月次データの集約特徴量</h3>
+        
+        <div class="info-box">
+            <h4 style="margin-top:0;">統計量ベース</h4>
+            <p>各数値変数について、0-23ヶ月の期間で以下を計算:</p>
+            <ul>
+                <li>基本統計量: 平均、標準偏差、最小値、最大値、中央値、変動係数</li>
+                <li>時期別統計量: 初期・中期・後期の平均、差分</li>
+                <li>トレンド特徴量: 線形回帰の傾き、最終値と初期値の差・比率</li>
+            </ul>
+            <p><strong>対象変数</strong>: 残業時間、有給取得日数、研修時間、面談回数、360度評価、顧客満足度、担当プロジェクト数、月例給与</p>
+        </div>
+
+        <h3>6.2 カテゴリカル変数の処理</h3>
+        
+        <ul>
+            <li><strong>One-Hot Encoding</strong>: 入社区分、性別、最終学歴、専攻分野、採用経路、初期職種、初期勤務地、初期役割</li>
+            <li><strong>Target Encoding</strong>: 初期部署ID、専攻分野、前職職種（CV内でリーク防止）</li>
+            <li><strong>順序エンコーディング</strong>: 初期等級、最終学歴</li>
+        </ul>
+
+        <h3>6.3 テキストデータの特徴抽出</h3>
+        
+        <ul>
+            <li><strong>TF-IDF特徴量</strong>: 入社時メモ、上司・同僚からのフィードバック（max_features: 50-100、ngram_range: (1,2)）</li>
+            <li><strong>テキスト統計量</strong>: 文字数、単語数、文数、平均単語長、感情分析</li>
+            <li><strong>埋め込み</strong>: 日本語BERT等で埋め込みを取得し、PCA/UMAPで圧縮</li>
+        </ul>
+
+        <h3>6.4 月次データのカテゴリカル変数</h3>
+        
+        <ul>
+            <li><strong>変化パターン</strong>: 部署異動回数、職種変更回数、役割変更・昇進フラグ、等級上昇回数、勤務地変更回数、上司変更回数</li>
+            <li><strong>在籍状態</strong>: 休職経験フラグ、休職月数、在籍継続月数</li>
+        </ul>
+
+        <h3>6.5 交互作用特徴量</h3>
+        
+        <ul>
+            <li>年齢 × 前職経験月数</li>
+            <li>初任給 × 初期等級</li>
+            <li>残業時間 × 研修時間</li>
+            <li>360度評価の合計/平均</li>
+            <li>入社区分 × 前職経験月数</li>
+        </ul>
+
+        <h3>6.6 欠損値を活用した特徴量</h3>
+        
+        <ul>
+            <li>前職職種欠損フラグ（= 新卒フラグ）</li>
+            <li>360度評価欠損率（0-23ヶ月で何%の月が欠損か）</li>
+            <li>顧客満足度評価欠損率</li>
+            <li>担当プロジェクト数欠損率</li>
+        </ul>
+
+        <hr>
+
+        <h2>7. モデリング戦略</h2>
+        
+        <h3>7.1 ベースラインモデル</h3>
+        
+        <ol>
+            <li><strong>ロジスティック回帰</strong>: 基本的な数値特徴量のみ使用、目標 Log Loss < 0.68</li>
+            <li><strong>勾配ブースティング</strong>: LightGBM/XGBoost、目標 Log Loss < 0.60</li>
+        </ol>
+
+        <h3>7.2 特徴量エンジニアリング後のモデル</h3>
+        
+        <ol>
+            <li><strong>LightGBM</strong>: 全特徴量 + ハイパーパラメータチューニング</li>
+            <li><strong>CatBoost</strong>: カテゴリカル変数の自動処理</li>
+            <li><strong>ニューラルネットワーク</strong>: Entity Embedding、数値・カテゴリカル・テキスト埋め込みの統合</li>
+        </ol>
+
+        <h3>7.3 アンサンブル</h3>
+        
+        <ul>
+            <li><strong>スタッキング</strong>: Level 1（LightGBM, XGBoost, CatBoost, NN）、Level 2（ロジスティック回帰 or LightGBM）</li>
+            <li><strong>ブレンディング</strong>: 各モデルの予測確率の加重平均</li>
+        </ul>
+
+        <h3>7.4 クロスバリデーション戦略</h3>
+        
+        <ul>
+            <li><strong>StratifiedKFold (5-fold)</strong>: 目的変数の比率を維持</li>
+            <li><strong>TimeSeriesSplit</strong>: 入社日順にソートしてから分割（オプション）</li>
+        </ul>
+
+        <h3>7.5 確率キャリブレーション</h3>
+        
+        <p>Log Loss最適化のため、予測確率の校正が重要です：</p>
+        <ul>
+            <li>Platt Scaling（ロジスティック回帰）</li>
+            <li>Isotonic Regression</li>
+            <li>Beta Calibration</li>
+        </ul>
+
+        <hr>
+
+        <h2>8. 次のステップ</h2>
+        
+        <h3>8.1 優先度: 高</h3>
+        
+        <ol>
+            <li><strong>特徴量エンジニアリングの実装</strong>: 月次データの集約特徴量、カテゴリカル変数のエンコーディング、欠損値処理</li>
+            <li><strong>ベースラインモデルの構築</strong>: ロジスティック回帰、LightGBM/XGBoost</li>
+            <li><strong>特徴量重要度の分析</strong>: 有効な特徴量の特定と不要な特徴量の削除</li>
+        </ol>
+
+        <h3>8.2 優先度: 中</h3>
+        
+        <ol start="4">
+            <li><strong>テキストデータの活用</strong>: TF-IDF特徴量、感情分析</li>
+            <li><strong>月次カテゴリカル変数</strong>: 部署異動、職種変更等のパターン特徴量</li>
+            <li><strong>ハイパーパラメータチューニング</strong>: Optuna/Hyperoptを使った自動最適化</li>
+        </ol>
+
+        <h3>8.3 優先度: 低（応用）</h3>
+        
+        <ol start="7">
+            <li><strong>employee_monthly_train_full.csvの活用</strong>: 24ヶ月以降のデータから退職パターンを分析（直接特徴量には使用しない）</li>
+            <li><strong>高度なモデリング</strong>: ニューラルネットワーク、時系列モデル（LSTM/Transformer）</li>
+            <li><strong>モデルの解釈性</strong>: SHAP値、Partial Dependence Plot</li>
+        </ol>
+
+        <hr>
+
+        <div class="warning-box">
+            <h2 style="margin-top:0; border:none; padding:0;">リスクと注意事項</h2>
+            
+            <h3>データリークのリスク</h3>
+            <ul>
+                <li>employee_monthly_train_full.csvの24ヶ月以降のデータは特徴量として直接使用しない</li>
+                <li>Target Encodingはクロスバリデーション内で適切に行う</li>
+            </ul>
+            
+            <h3>過学習のリスク</h3>
+            <ul>
+                <li>特徴量が多すぎると過学習しやすい</li>
+                <li>対策: 特徴量選択、正則化、Early Stopping</li>
+            </ul>
+            
+            <h3>時系列の偏り</h3>
+            <ul>
+                <li>Trainは2011-2014年、Testは2014-2017年と時期が異なる</li>
+                <li>対策: 時系列CVでバリデーション戦略を検証</li>
+            </ul>
+        </div>
+
+        <hr>
+
+        <div class="summary-box">
+            <h2 style="margin-top:0; border:none; padding:0;">結論</h2>
+            
+            <p>本EDAにより、10年定着予測の機械学習モデル構築に向けた基盤が整いました。</p>
+            
+            <h3>主要な知見</h3>
+            <ol>
+                <li>定着率は56%と比較的バランスが良く、クラス不均衡対策は不要</li>
+                <li>入社時年齢、前職経験、初任給が定着と正の相関</li>
+                <li>残業時間、360度評価など月次データの時系列パターンに明確な差</li>
+                <li>欠損値は職種・業務形態による構造的なものが多く、情報として活用可能</li>
+            </ol>
+            
+            <h3>次のアクション</h3>
+            <ol>
+                <li>提案された特徴量エンジニアリングを実装</li>
+                <li>ベースラインモデルを構築してLBスコアを確認</li>
+                <li>特徴量重要度を分析して改善点を特定</li>
+            </ol>
+            
+            <p style="margin-top:20px;">本レポートで提案した特徴量エンジニアリング戦略とモデリング手法を実装することで、Log Loss 0.68（ベースライン）を大きく下回るモデルの構築が期待されます。</p>
+        </div>
+
+        <hr>
+        
+        <div class="header-info" style="margin-top:40px;">
+            <p><strong>レポート作成者</strong>: Data Science Team</p>
+            <p><strong>最終更新日</strong>: 2026年8月5日</p>
+        </div>
+    </div>
+</body>
+</html>
