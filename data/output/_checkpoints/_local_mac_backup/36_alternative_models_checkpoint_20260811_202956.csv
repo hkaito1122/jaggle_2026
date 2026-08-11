@@ -1,0 +1,2 @@
+config,n_features,val_score,submission_path,val_pred_path
+split_80_20_catboost,441,0.4997866510380766,/Users/hayashikaito/Library/CloudStorage/GoogleDrive-1122hkaito@gmail.com/マイドライブ/jaggle_2026/data/output/20260811/20260811_36_alternative_models_split_80_20_catboost.csv,/Users/hayashikaito/Library/CloudStorage/GoogleDrive-1122hkaito@gmail.com/マイドライブ/jaggle_2026/data/output/20260811/20260811_36_alternative_models_split_80_20_catboost_valpreds.npy
