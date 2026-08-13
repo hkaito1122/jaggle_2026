@@ -1,7 +1,0 @@
-config,n_features,val_score,submission_path
-stepA_split_80_20_no_text,394,0.5412998914126513,/content/drive/MyDrive/jaggle_2026/data/output/20260809/20260809_19_text_embeddings_stepA_split_80_20_no_text.csv
-stepA_split_80_20_tfidf,439,0.5367483477677168,/content/drive/MyDrive/jaggle_2026/data/output/20260809/20260809_19_text_embeddings_stepA_split_80_20_tfidf.csv
-stepA_split_80_20_embedding,439,0.541603305641143,/content/drive/MyDrive/jaggle_2026/data/output/20260809/20260809_19_text_embeddings_stepA_split_80_20_embedding.csv
-stepA_split_75_25_no_text,394,0.5561702675753835,/content/drive/MyDrive/jaggle_2026/data/output/20260809/20260809_19_text_embeddings_stepA_split_75_25_no_text.csv
-stepA_split_75_25_tfidf,439,0.5519604844636833,/content/drive/MyDrive/jaggle_2026/data/output/20260809/20260809_19_text_embeddings_stepA_split_75_25_tfidf.csv
-stepA_split_75_25_embedding,439,0.5515068890774546,/content/drive/MyDrive/jaggle_2026/data/output/20260809/20260809_19_text_embeddings_stepA_split_75_25_embedding.csv
