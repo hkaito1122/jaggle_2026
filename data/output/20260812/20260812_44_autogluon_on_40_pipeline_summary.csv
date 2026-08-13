@@ -1,0 +1,5 @@
+config,feature_set,n_features,run,model,val_logloss,n_train,pred_mean,mad_vs_best,corr_vs_best,submission_path,提出
+AG_lean113_weighted,lean113,113,full,WeightedEnsemble_L3,0.48723415674997883,2761,0.5815242638038717,0.04759187262408292,0.9740022880352437,/content/drive/MyDrive/jaggle_2026/data/output/20260812/20260812_44_autogluon_on_40_pipeline_AG_lean113_weighted.csv,提出する
+AG_lean113_best_single,lean113,113,full,CatBoost_BAG_L2,0.490407842872746,2761,0.5804023893369878,0.047247357071681755,0.975421757707925,/content/drive/MyDrive/jaggle_2026/data/output/20260812/20260812_44_autogluon_on_40_pipeline_AG_lean113_best_single.csv,提出する
+AG_full441_weighted,full441,441,full,WeightedEnsemble_L3,0.4889391549489456,2761,0.5823481072642678,0.06238580806505935,0.951824935312706,/content/drive/MyDrive/jaggle_2026/data/output/20260812/20260812_44_autogluon_on_40_pipeline_AG_full441_weighted.csv,提出する
+AG_full441_best_single,full441,441,full,CatBoost_r177_BAG_L2,0.49070204735785344,2761,0.582258674489568,0.06310483401644695,0.9505461255399225,/content/drive/MyDrive/jaggle_2026/data/output/20260812/20260812_44_autogluon_on_40_pipeline_AG_full441_best_single.csv,提出する

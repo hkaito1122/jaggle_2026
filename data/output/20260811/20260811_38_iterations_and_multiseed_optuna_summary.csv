@@ -1,0 +1,5 @@
+config,params,学習,iterations,Public,submission
+37_ D3（現在の最良）,A_PARAMS,全件,560,0.522659,（提出済み）
+H1_Aparams_full,A_PARAMS,全件,700,,20260811_38_iterations_and_multiseed_optuna_H1_Aparams_full_iter700.csv
+H2_newparams_full,新（マルチシード）,全件,419,,20260811_38_iterations_and_multiseed_optuna_H2_newparams_full_iter419.csv
+G_newparams_seedavg_80pct,新（マルチシード）,先頭80%,early stopping,,20260811_38_iterations_and_multiseed_optuna_G_newparams_seedavg_80pct.csv

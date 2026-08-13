@@ -1,0 +1,2 @@
+config,members,n_models,val_seedavg,val_single_mean,val_single_sd,pred_mean,mad_vs_E0,corr_vs_E0,submission_path,提出
+E0_catboost,catboost,1,0.5146424190199853,,,0.587364248310316,0.0,0.9999999999999998,/content/drive/MyDrive/jaggle_2026/data/output/20260812/20260812_43_model_diversity_equal_weight_E0_catboost.csv,不要（提出済み・参照用）

@@ -1,0 +1,6 @@
+config,学習,検証,シード,val(生存者のみ),val(全体),submission
+A_repro_28（= 28_の再現）,先頭80%,全体,1,0.5142543336878179,0.5030654362829167,20260811_37_full_train_seed_averaging_A_repro_28.csv
+B_valfix（改善3）,先頭80%,生存者のみ,1,0.5198384222718107,,20260811_37_full_train_seed_averaging_B_valfix.csv
+C_valfix_seedavg（改善3+2）,先頭80%,生存者のみ,5,0.5219778984415248,,20260811_37_full_train_seed_averaging_C_valfix_seedavg.csv
+D_full_seedavg_x125（改善3+2+1）★本命,全件,—,5,,,20260811_37_full_train_seed_averaging_D_full_seedavg_x125.csv
+D2_full_seedavg_x100（保険）,全件,—,5,,,20260811_37_full_train_seed_averaging_D_full_seedavg_x100.csv

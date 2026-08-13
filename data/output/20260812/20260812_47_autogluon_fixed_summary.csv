@@ -1,0 +1,5 @@
+config,feature_set,n_features,run,model,val_logloss,n_train,pred_mean,mad_vs_best,corr_vs_best,submission_path,提出
+AG47_lean113_weighted,lean113,113,full,WeightedEnsemble_L3,0.528341558888976,2761,0.5784853808261711,0.08137114951537072,0.9047800141086535,/content/drive/MyDrive/jaggle_2026/data/output/20260812/20260812_47_autogluon_fixed_AG47_lean113_weighted.csv,提出する
+AG47_lean113_best_single,lean113,113,full,ExtraTrees_r4_BAG_L2,0.5292615126350814,2761,0.5799845786955801,0.08116326896542865,0.9053708760954347,/content/drive/MyDrive/jaggle_2026/data/output/20260812/20260812_47_autogluon_fixed_AG47_lean113_best_single.csv,提出する
+AG47_full441_weighted,full441,441,full,WeightedEnsemble_L3,0.5414974281027981,2761,0.5795230138942683,0.09509291585330554,0.8694798232193408,/content/drive/MyDrive/jaggle_2026/data/output/20260812/20260812_47_autogluon_fixed_AG47_full441_weighted.csv,提出する
+AG47_full441_best_single,full441,441,full,ExtraTrees_r4_BAG_L2,0.5424481610377935,2761,0.5806709154435307,0.09540005828477079,0.8670062759279581,/content/drive/MyDrive/jaggle_2026/data/output/20260812/20260812_47_autogluon_fixed_AG47_full441_best_single.csv,提出する
