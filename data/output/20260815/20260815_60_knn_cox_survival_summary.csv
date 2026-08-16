@@ -1,0 +1,5 @@
+config,列数,val,val差(対baseline),ファイル,提出
+R0_memofix_plus_LM,444,0.5054773240002715,0.0,20260815_60_knn_cox_survival_R0_memofix_plus_LM.csv,提出する
+R0_plus_LM_plus_KNN,445,0.5065557337239889,0.0010784097237174217,20260815_60_knn_cox_survival_R0_plus_LM_plus_KNN.csv,提出する
+R0_plus_LM_plus_COX,445,0.5064601108046392,0.0009827868043676968,20260815_60_knn_cox_survival_R0_plus_LM_plus_COX.csv,提出する
+R0_plus_LM_plus_KNN_COX,446,0.5063059457580329,0.0008286217577614385,20260815_60_knn_cox_survival_R0_plus_LM_plus_KNN_COX.csv,参考（単独評価ではない・任意）

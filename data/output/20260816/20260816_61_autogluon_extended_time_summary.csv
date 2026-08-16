@@ -1,0 +1,3 @@
+config,feature_set,n_features,run,model,val_logloss,n_train,pred_mean,mad_vs_best,corr_vs_best,submission_path,提出
+AG61_full441_weighted,full441,441,full,WeightedEnsemble_L3,0.4848408654583312,2761,0.5846832577529237,0.013379604041242861,0.9983323760996909,/content/drive/MyDrive/jaggle_2026/data/output/20260816/20260816_61_autogluon_extended_time_AG61_full441_weighted.csv,見送り（現最良との差がノイズ床以下）
+AG61_full441_best_single,full441,441,full,ExtraTrees_r4_BAG_L2,0.4878534001683185,2761,0.5833135407342077,0.021758507136895738,0.9952951556428763,/content/drive/MyDrive/jaggle_2026/data/output/20260816/20260816_61_autogluon_extended_time_AG61_full441_best_single.csv,提出する

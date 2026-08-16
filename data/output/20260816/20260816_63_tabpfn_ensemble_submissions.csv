@@ -1,0 +1,5 @@
+config,w_catboost,pred_mean,submission_path,mad_vs_best,corr_vs_best,提出
+TP63_full441_blend_w050,0.5,0.5971080350992498,/content/drive/MyDrive/jaggle_2026/data/output/20260816/20260816_63_tabpfn_ensemble_TP63_full441_blend_w050.csv,0.04738614505513987,0.9745784892436848,提出する
+TP63_full441_blend_wbest,0.9,0.5915722898739281,/content/drive/MyDrive/jaggle_2026/data/output/20260816/20260816_63_tabpfn_ensemble_TP63_full441_blend_wbest.csv,0.04749650428302041,0.974749127033695,提出する
+TP63_top150_blend_w050,0.5,0.5933273591207556,/content/drive/MyDrive/jaggle_2026/data/output/20260816/20260816_63_tabpfn_ensemble_TP63_top150_blend_w050.csv,0.044995242942683214,0.9776162628475099,提出する
+TP63_top150_blend_wbest,0.5,0.5933273591207556,/content/drive/MyDrive/jaggle_2026/data/output/20260816/20260816_63_tabpfn_ensemble_TP63_top150_blend_wbest.csv,0.044995242942683214,0.9776162628475099,提出する

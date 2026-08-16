@@ -1,0 +1,5 @@
+config,n_features,n_runs,n_bag_folds,kind,pred_mean,mad_vs_best,corr_vs_best,submission_path,提出
+AG62_seedavg3_weighted,441,3,8,weighted,0.5836597351005458,0.02015856384700961,0.9944997617391144,/content/drive/MyDrive/jaggle_2026/data/output/20260815/20260815_62_autogluon_seed_averaging_AG62_seedavg3_weighted.csv,見送り（現最良との差がノイズ床以下）
+AG62_bag16_weighted,441,1,16,weighted,0.5879856409068754,0.022345993541282333,0.9933576709887552,/content/drive/MyDrive/jaggle_2026/data/output/20260815/20260815_62_autogluon_seed_averaging_AG62_bag16_weighted.csv,提出する
+AG62_seedavg3_best_single,441,3,8,best_single,0.5833104031091983,0.02377751918795972,0.9931917654480705,/content/drive/MyDrive/jaggle_2026/data/output/20260815/20260815_62_autogluon_seed_averaging_AG62_seedavg3_best_single.csv,提出する
+AG62_bag16_best_single,441,1,16,best_single,0.5927620611557786,0.02796509821000668,0.992285172582087,/content/drive/MyDrive/jaggle_2026/data/output/20260815/20260815_62_autogluon_seed_averaging_AG62_bag16_best_single.csv,提出する

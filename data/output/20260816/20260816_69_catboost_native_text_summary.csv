@@ -1,0 +1,5 @@
+config,列数,text列,val,ファイル,val差(対baseline),提出
+R0_memofix_plus_LM,444,0,0.5054773240002715,20260816_69_catboost_native_text_R0_memofix_plus_LM.csv,0.0,提出する
+R0_plus_LM_plus_TXT,446,2,0.5111825813955473,20260816_69_catboost_native_text_R0_plus_LM_plus_TXT.csv,0.005705257395275831,提出する
+R0_memofix_plus_LM_BLEND,444,0,0.5007999417692738,20260816_69_catboost_native_text_R0_memofix_plus_LM_BLEND.csv,-0.004677382230997673,提出する
+R0_plus_LM_plus_TXT_BLEND,446,2,0.508826198752255,20260816_69_catboost_native_text_R0_plus_LM_plus_TXT_BLEND.csv,0.0033488747519835327,提出する
