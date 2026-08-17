@@ -1,0 +1,4 @@
+config,n_runs,pred_mean,submission_path,mad_vs_poolC
+pool_all,13,0.5854484291541855,/content/drive/MyDrive/jaggle_2026/data/output/20260816/20260816_64_autogluon_more_seeds_pool_all.csv,0.004241380224225213
+pool_independent,9,0.5855805550681484,/content/drive/MyDrive/jaggle_2026/data/output/20260816/20260816_64_autogluon_more_seeds_pool_independent.csv,0.0076038103152343784
+pool_new5,5,0.5862520298809647,/content/drive/MyDrive/jaggle_2026/data/output/20260816/20260816_64_autogluon_more_seeds_pool_new5.csv,0.011027588582985543

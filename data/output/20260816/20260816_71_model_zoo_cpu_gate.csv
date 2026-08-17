@@ -1,0 +1,7 @@
+model,view,source,val,vs_cb,seed_sd,corr_cb,gateA,gateB,採用候補
+ebm,cb_top150,本NBで新規学習,0.514536,-0.001611,0.00093,0.9362,True,True,True
+extratrees,full441,本NBで新規学習,0.535172,0.019025,0.00086,0.9157,True,True,True
+logreg,hire_fixed,本NBで新規学習,0.551791,0.035644,0.0,0.8579,False,True,False
+mlp,hire_fixed,本NBで新規学習,0.566216,0.050069,0.02052,0.8358,False,True,False
+gp,num_top50_std,本NBで新規学習,0.571202,0.055055,0.0,0.8473,False,True,False
+svm_rbf,num_top50_std,本NBで新規学習,0.573573,0.057426,0.0,0.8173,False,True,False
