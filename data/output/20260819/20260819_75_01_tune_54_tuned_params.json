@@ -1,0 +1,12 @@
+{
+  "params": {
+    "depth": 5,
+    "learning_rate": 0.012329001338484864,
+    "l2_leaf_reg": 2.666014772496592,
+    "border_count": 189,
+    "bagging_temperature": 0.5488812381367517,
+    "random_strength": 0.4226831915239426
+  },
+  "iterations": 880,
+  "cv_best_value": 0.49795068066447085
+}

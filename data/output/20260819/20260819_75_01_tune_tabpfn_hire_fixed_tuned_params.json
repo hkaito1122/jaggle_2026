@@ -1,0 +1,9 @@
+{
+  "params": {
+    "n_estimators": 4,
+    "softmax_temperature": 0.7912291401980419,
+    "balance_probabilities": true,
+    "average_before_softmax": false
+  },
+  "holdout_logloss": 0.47903264270185736
+}
