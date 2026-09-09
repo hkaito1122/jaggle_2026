@@ -5155,3 +5155,1629 @@ Public 0.527387 は現最良 0.508699 より 0.0187 悪く、**新最良では�
 
 関連: [[validation-asymmetry]] [[blend-curve-beats-val-margin-gate]] [[cpu-model-zoo-closed]]
 [[eda-v7-findings]] [[ablation-cannot-settle-feature-blocks]]
+
+# 108. `xxxx.ipynb` v1 提出結果: **0.529066 — reference著者パイプラインの初回実行**
+
+**提出日**: 2026-08-18 00:01。`src/xxxx.ipynb`（`reference/長期定着予測_crmaine_0816.ipynb`を
+そのまま踏襲、seed=[42]・StratifiedKFold 2分割、著者オリジナル特徴量セット104列、
+text_featuresネイティブ + 在籍月数回帰+Platt較正の85:15ブレンド）。
+
+この時点の総合最良（プールC×TabPFN, 0.508793、[[best-submission-status]]）には届かないが、
+シード数・fold数を増やす方向（`xxxx_v2`〜`xxxx_v4`）の出発点として記録。
+
+関連: [[reference-notebook-1st-place-base]] [[modeling-levers-beat-new-features]]
+
+---
+
+# 109. `xxxx_v4.ipynb` 提出結果: **0.508039 — シード/fold数拡大だけでこのプロジェクト最大級の単一レバー改善**
+
+**提出日**: 2026-08-18 08:54。`xxxx.ipynb`(v1)と同一の特徴量セット・同一パイプラインのまま、
+シード数・fold数だけを7シード×6-foldに拡大。
+
+## 109.1 結果
+
+| 構成 | Public | 差 |
+|---|---|---|
+| `xxxx`(v1, seed=[42]・2-fold) | 0.529066 | — |
+| **`xxxx_v4`(7シード×6-fold)** | **0.508039** | **-0.021027** |
+
+v1は旧最良のpooled(0.508699)・単体(0.508793)をそれぞれ-0.000660・-0.000754更新していた
+（現在はさらにブレンドで更新済み）。`37_`で確認済みの「`54_`系はシード平均が保険にしか
+ならない」という結論とは矛盾しない——`xxxx`系はfold-bagging構造で元のfold/シード数が
+極端に少なかったため、シード/fold拡大が（a）各foldモデルの学習量増加、（b）アンサンブル
+本数増加の両方で効いた（[[modeling-levers-beat-new-features]]2026-08-18追記）。
+
+関連: [[modeling-levers-beat-new-features]] [[reference-notebook-1st-place-base]]
+[[best-submission-status]]
+
+---
+
+# 110. `72_reference_pipeline_standalone` pooled 提出結果: **0.497608 — 新最良、xxxx_v4×プールの初ブレンド**
+
+**提出日**: 2026-08-18 11:46。`data/output/20260818/20260818_72_v4_pool_blend_w50.csv`
+（xxxx_v4 と 現最良プール(top150ブレンド×hire_fixed) の非チューニング50:50平均）。
+
+## 110.1 結果
+
+| 構成 | Public | 差 |
+|---|---|---|
+| xxxx_v4単体 | 0.508039 | — |
+| プール単体 | 0.508699 | — |
+| **xxxx_v4×プール(w=0.5)** | **0.497608** | **-0.010431（プロジェクト最大のアンサンブル改善）** |
+
+corr(xxxx_v4, プール)=0.90——[[tabpfn-ensemble-partner]]のTabPFN×CatBoost(corr 0.954)より
+低く、より多様。かつ両者の単体Publicがほぼ互角(差0.00066)。[[ensemble-oof-overfitting]]の
+「絶対性能が互角ならより低い相関がそのまま効く」の外挿として説明がつく規模。
+探索なしのw=0.5一発でこの改善幅が出た点も特筆に値する。
+
+**総合最良、この日から長期間更新される。**
+
+関連: [[best-submission-status]] [[ensemble-oof-overfitting]] [[private-lb-variance-strategy]]
+
+---
+
+# 111. `73_plus_SL` 提出結果: **0.518789 — 自己学習パース特徴量、2回連続で反転確定**
+
+**提出日**: 2026-08-18（時刻不明）。`data/output/20260818/20260818_73_plus_SL_submission.csv`
+（`54_`ベースラインに自己学習パース特徴量ブロックSLを追加、分解能を±0.0043に上げても
+検証は-0.007329改善だったため事前登録ルールに従い提出）。
+
+## 111.1 結果
+
+`54_`ベースライン単体(0.515030)より悪化。`59_`（検証-0.0115→Public+0.002273悪化）と
+同じ方向に2回連続で反転。分解能を厳しくしても救われなかったため、自己学習パース特徴量
+（自己学習時間・テーマ数・傾き）はこれで完全に閉じたと判断する。
+
+関連: [[validation-asymmetry]] [[best-submission-status]]
+
+---
+
+# 112. `xxxx_v4` 分類器単体 提出結果: **0.512683 — 回帰+Plattブレンドの寄与を初めて定量分離**
+
+**提出日**: 2026-08-19（時刻不明）。同一シード/fold数(7×6)・同一特徴量で「分類器単体
+（回帰ブレンドなし）」を`xxxx_v4.ipynb`に保存機能を追加した上で提出し、実際の提出物
+（85:15ブレンド）とPublicで直接比較した。
+
+## 112.1 結果
+
+| 構成 | Public |
+|---|---|
+| `54_`（比較基準） | 0.515030 |
+| 分類器単体（xxxx_v4のreference特徴量、7シード×6-fold、回帰ブレンドなし） | 0.512683 |
+| 85:15ブレンド（実際の提出物） | 0.508039 |
+
+内訳: reference特徴量+heavy seed/fold自体の寄与 ≈ -0.0023（54_比）、
+**回帰+Plattブレンドの追加寄与 ≈ -0.0046**（分類器単体比）。回帰ブレンドの寄与の方が
+特徴量セット自体の差より大きく、「回帰モデルがxxxx_v4の根幹を担っている」という
+他参加者の推察が定量的に支持された。ただし`54_`への同技法の移植は`69_`で既に失敗しており
+（[[reference-notebook-1st-place-base]]）、xxxx側のアーキテクチャ固有の効果と解釈する。
+
+関連: [[modeling-levers-beat-new-features]] [[reference-notebook-1st-place-base]]
+
+---
+
+# 113. `74_seed_fold_scaling_on_54` 提出結果: **両実験ともPublicで無風 — ローカルの「無風判定」が的中**
+
+**提出日**: 2026-08-19（時刻不明）。`54_`にxxxx系の「シード/fold拡大」レバーを移植できるか
+検証した2実験。
+
+## 113.1 結果
+
+| 構成 | Public | 54_(0.515030)比 |
+|---|---|---|
+| 実験(a) シード5→8 | 0.515714 | +0.000684（ノイズ内、無風） |
+| 実験(b) fold-bagging新規導入(K=6×5シード) | 0.518509 | +0.003479（やや悪化） |
+
+ローカルでもTest予測が既存`54_`提出物とcorr>0.995・MADがノイズ床未満で「実質的に同一
+モデル」と予測しており、Publicでもその通り無風だった。`xxxx`系で確認された-0.021027規模の
+改善は、`54_`の特徴量・アーキテクチャ基盤には一切移植されないことが確定。
+
+関連: [[modeling-levers-beat-new-features]] [[refit-chaos-noise-floor]]
+
+---
+
+# 114. `75_tuned_ensemble` 提出結果: **「既調整済みか」で明暗が分かれる — xxxx_tunedが新記録**
+
+**提出日**: 2026-08-20（時刻不明、`xxxx_tuned×プール`のみ2026-08-20実施と時刻不明で記録）。
+2つの独立したOptuna強化再探索（150試行/40試行・3-fold CV目的関数）をPublicで確認。
+
+## 114.1 結果
+
+| 対象 | 元の状態 | Public | 判定 |
+|---|---|---|---|
+| `54_tuned`（441/444列） | 既にOptuna済み・実運用実績あり | 0.517821 | 悪化(+0.002791)、不採用 |
+| **`xxxx_tuned`**（分類器のみ再探索、回帰ブレンドは元のまま） | 未調整のまま借用(depth=6,lr=0.03) | **0.506457** | **改善(-0.001582)、新記録** |
+| final5アンサンブル（54_tuned+xxxx_tuned+TabPFN×2_tuned+TabICL_tuned、等重み） | — | 0.500566 | 旧6モデル(0.501006)比-0.000440、現最良には未達 |
+| `xxxx_tuned`×プール | — | 0.497671 | 現最良(0.497608)とほぼ同着(+0.000063、ノイズ以下) |
+
+**How to apply**: 再探索を試みる前に「このハイパーパラメータは過去に一度でもまともに
+調整されたか」を自問する。YESなら`54_`と同じく時間の無駄になりやすい。NOなら
+（`xxxx_v4`のように借用しただけの値なら）試す価値がある。`54_tuned`は不採用、以後
+`54_`(0.515030)に戻す。`xxxx_tuned`が`xxxx_v4`の後継として以後使われる。
+
+関連: [[hyperparameter-retuning-exhausted]] [[best-submission-status]]
+
+---
+
+# 115. `76_text_kitchen_sink_on_54` full_regression_blend 提出結果: **0.519710 — 回帰ブレンドが54_系で4回連続不採用確定**
+
+**提出日**: 2026-08-21（時刻不明）。444+新規99列(BoW+ngram/embedding/sentiment)のFULL構成に
+在籍月数回帰+Platt較正を85:15ブレンド、ネストKFoldでOOF較正まで丁寧に設計。
+
+val上は54_基準(0.505477)より-0.000575改善して見えたが、**Public 0.519710で54_基準
+(0.515030)比+0.004680悪化**。`69_`・実験(c)・実験(d)・本件と**4回連続で「val改善→
+Public悪化」の同一パターン**が再現し、回帰ブレンドが54_系パイプラインに効かないことは
+統計的にもう疑いようがない。
+
+関連: [[reference-notebook-1st-place-base]] [[validation-asymmetry]]
+
+---
+
+# 116. `77_last_month_category_on_54` 提出結果: **0.511547 — 単層CatBoost(54_系)の新記録**
+
+**提出日**: 2026-08-21（時刻不明）。xxxx_v4の重要度上位10に入っていた「最終月の職種」
+「最終月の勤務地」（54_のcatchangeグループには存在しない生カテゴリ列）の欠落を突き止め、
+54_のR0_memofix_plus_LM(444列)にそのまま3列（最終月の職種・最終月の勤務地・最終月の
+部署ID）を追加した単一の事前登録済み構成。
+
+**Public 0.511547（54_基準0.515030比 -0.003483改善）。単層CatBoost(54_系)の新記録。**
+
+局所検証は2つの独立した方法（時系列80/20ホールドアウト-0.008525、ランダムKFold OOF
+-0.005225）で改善の**方向**は正しく予測していたが、**幅は過大評価**していた
+（実測-0.003483は両方の局所推定より小さい）。「局所valの方向は信じてよいが、幅は
+さらに割り引いて見る」という教訓が新たに加わった。
+
+関連: [[best-submission-status]] [[validation-asymmetry]]
+
+---
+
+# 117. `81_text_kitchen_sink_on_54_leak_fixed` TOP20PCT 提出結果: **プロジェクト最大の局所val→Public反転、特徴量選択リークを診断**
+
+**提出日**: regression_blend 2026-08-21 10:07:45、classifier 2026-08-21 10:08:20。
+`81_`のTOP20PCT（重要度上位20%=109列、Target Encodingリークを`80_`のbuild_features
+パターンで修正した上での構成）を分類器版・回帰ブレンド版とも提出。
+
+## 117.1 結果
+
+| 構成 | Public | 対54_基準(0.515030) | 局所val(OOF)の予測方向 |
+|---|---|---|---|
+| top20pct_regression_blend | 0.519610 | +0.004580悪化 | -0.021改善(反転) |
+| top20pct_classifier | 0.521148 | +0.006118悪化 | -0.016改善(反転) |
+
+**振れ幅は最大約0.024でこのプロジェクト最大の局所val→Public反転**（従来最大は`59_`の
+0.0138）。原因（推定）: TOP20PCTの109列はFULL構成の5-fold CVの最終foldで学習した1
+モデルの重要度から選んだが、この列選択ステップ自体はCVの外側で行われており、選ばれた
+列は評価に使う検証fold側の情報を間接的に含んでいた——Target Encodingリークとは独立した
+「特徴量選択のリーク」という3つ目の穴。
+
+**How to apply**: 「重要度上位K%を選ぶ」等の特徴量選択を行う場合、選択ステップ自体を
+CVループの外側で1回だけ行って評価に使い回してはいけない。各foldの学習データだけで
+重要度を再計算し、選択もfoldごとにネストする必要がある。
+
+関連: [[validation-asymmetry]] [[best-submission-status]]
+
+---
+
+# 118. `83_last_month_category_change_on_77` plus_change_classifier 提出結果: **0.511224 — 分解能未満の局所val差は方向すら信用できないと確定**
+
+**提出日**: 2026-08-22 10:31:39。77_の447列に初期→最終月カテゴリの変化フラグ4列
+（職種変化・勤務地変化・部署ID変化・変化数合計）を追加した構成。局所val（分類器の
+リークなしKFold OOF）はbaseline_447(0.517047)比+0.001638悪化と出ていた。
+
+## 118.1 結果と訂正
+
+Public 0.511224——77_基準(0.511547)比**-0.000323**で、同一レシピ再実行のノイズ床(0.0023)
+未満、統計的にほぼ同着。局所val差(+0.0016)はKFold OOFの分解能(±0.0043)を**下回って
+いた**——「検証が悪化と言うときは信用してよい」というルールを、分解能チェックを省いて
+機械的に適用してしまったのが誤りだった。
+
+**How to apply（ルール修正）**: 「検証の悪化は信頼できる」という非対称性は、その差が
+分解能を上回っているときに限る。分解能未満の「悪化」は方向すら判定不能なノイズであり、
+足切りの根拠にしてはいけない。
+
+関連: [[validation-asymmetry]] [[best-submission-status]]
+
+---
+
+# 119. `82_`/`84_` 提出結果: **分解能未満の悪化判定を波及検証、いずれもノイズ内**
+
+**提出日**: 2026-08-22、11:01:35(82_xxxxv4feat)・11:02:14(84_narrowed)・11:02:35(84_top30pct)。
+第118節の教訓（分解能未満の局所val悪化は信用できない）を受けて、同じ理由で未提出に
+していた3構成をまとめて確認。
+
+## 119.1 結果
+
+| ファイル | Public | 対77_(0.511547) | 局所val差(参考) |
+|---|---|---|---|
+| `82_`xxxxv4feat_classifier | 0.511890 | +0.000343(ノイズ内、同着) | +0.001618 |
+| `84_`narrowed_nested_classifier | 0.511882 | +0.000335(ノイズ内、同着) | +0.001378 |
+| **`84_`top30pct_nested_classifier** | **0.509500** | **-0.002048(改善、新記録)** | +0.002213(逆方向) |
+
+`84_`のTOP30PCT_nested（447列中134列にネスト選択でプルーニング）が**単層CatBoost(54_系)
+の新記録**。局所valでは+0.0022悪化と出ていたにもかかわらずPublicでは-0.002048改善——
+「分解能未満の局所val差は方向すら信用できない」を「同着」だけでなく「逆方向の実質改善」
+というより強い形で裏付けた。
+
+**How to apply（さらに強化）**: 分解能未満の局所val差は、悪化予測でも改善予測でも一切の
+判断材料にならない。分解能未満の構成は、局所valの結果を見ずにPublicで確認するのが
+唯一の判定手段。
+
+関連: [[validation-asymmetry]] [[best-submission-status]]
+
+---
+
+# 120. `84_nested_feature_selection_on_77` TOP20PCT 提出結果: **0.513115 — 悪化、45列の内訳を解析**
+
+**提出日**: 2026-08-22 11:05:22。`84_`のTOP20PCT_nested（89列、重要度上位20%）。
+TOP30PCT(134列)が新記録だったため、絞りすぎの可能性を確認する追加検証。
+
+## 120.1 結果
+
+Public 0.513115——77_基準(0.511547)比+0.001568悪化。TOP30PCT(134列, 0.509500)からは
+-0.003615の差で、89列→134列の間（重要度ランクで89位〜134位）に何かがあると判明。
+
+差分の45列を分析すると単一の「決定打」ではなく、**360度評価の統計量ブロック
+（18/45列、40%）**と生の報酬・属性列（初任給・月例給与・性別・採用経路）が主体の
+分散した集合だった。重要度の値自体は滑らかに減少しており崖はない——20%の閾値が
+たまたま360度評価ブロックを根こそぎ削ってしまった、という解釈。これ以上閾値を
+細かく探ることはPublic自体への過学習リスクがあるため見送り、TOP30PCT(134列)を
+確定として次の段階（アンサンブル統合）へ進む判断をした。
+
+関連: [[validation-asymmetry]] [[ensemble-oof-overfitting]]
+
+---
+
+# 121. `85_blend_top30pct_with_v4_pool` add_w15 提出結果: **0.496944 — 新最良、単層CatBoost新記録をアンサンブルに統合**
+
+**提出日**: 2026-08-22 11:23:28。`data/output/20260822/20260822_85_blend_top30pct_with_v4_pool_add_w15_submission.csv`
+（現最良ブレンドxxxx_v4×プールに、`84_`のTOP30PCT_nested(CB134)を15%追加、重み探索なし
+の事前登録2候補のうちの1つ）。
+
+## 121.1 結果
+
+Public 0.496944——旧最良(0.497608)比**-0.000664改善**。corr(new_model, xxxx_v4)=0.8928
+（既存のxxxx_v4-プール間0.9015と同程度の多様性）、corr(new_model, プール)=0.9691
+（高め、同じ54_系パイプライン由来のため）。もう一つの候補add_w25は後日提出予定として
+この時点では見送り。
+
+**新最良、以後この系列でさらに更新が続く。**
+
+関連: [[best-submission-status]] [[private-lb-variance-strategy]] [[ensemble-oof-overfitting]]
+
+---
+
+# 122. `88_logreg_iteration` blend_argmin_w90pct 提出結果: **0.509485 — CatBoost単体とほぼ完全に一致**
+
+**提出日**: 2026-08-22 17:02:09。`77_`の134列選択+ElasticNet正則化ロジスティック回帰
+（iter2、CVスコア改善の唯一の成功例、val=0.535668・CB134比+0.016409）とCatBoost134の
+ブレンド(w_cb=0.90、局所argmin)。
+
+## 122.1 結果
+
+Public 0.509485——84_のTOP30PCT_nested単体(0.509500)とほぼ同一（差-0.000015、誤差
+レベル）。局所val通り、w=0.90（LogRegはわずか10%）でのブレンド改善はほぼゼロという
+結果。ElasticNet化でCVギャップを縮められても（+0.025→+0.016）、CatBoostとの絶対差が
+依然大きすぎてブレンドに実質的な価値を生まないことが確認された。
+
+関連: [[cpu-model-zoo-closed]] [[ensemble-oof-overfitting]]
+
+---
+
+# 123. `86_tabpfn_on_84_top30pct` 提出結果: **TabPFNが単体でCatBoostを初めて上回った**
+
+**提出日**: tabpfn134_classifier 2026-08-22 19:19:31、blend_argmin_w20pct 2026-08-22 19:22:43。
+`84_`のTOP30PCT_nested(134列)にTabPFN v2を適用（列数が少ないほど強いという`63_`の知見を
+踏まえた延長）。
+
+## 123.1 結果
+
+| 構成 | Public | 対CB134(0.509500) |
+|---|---|---|
+| **TabPFN134単体** | **0.507300** | **-0.002200(改善)** |
+| **CB134×0.20+TabPFN134×0.80ブレンド** | **0.504235** | **-0.005265(改善)** |
+
+このプロジェクトで初めて、TabPFNが単体でCatBoostを上回った（従来は`63_`のTabPFN(top150)
+がCatBoost比+0.0013で辛うじて互角、という水準だった）。ブレンドはTabPFN単体比でも
+-0.003065改善しており、両方とも同一レシピ再実行ノイズ床(0.0023)を上回る、信頼できる
+改善。局所val(-0.0146/-0.0017)より実測は小さいが、方向は一致（77_と同じ「方向は当たるが
+幅は過大評価」パターン）。
+
+関連: [[tabpfn-ensemble-partner]] [[best-submission-status]] [[validation-asymmetry]]
+
+---
+
+# 124. `92_blend_tabpfn_into_best` 提出結果: **0.496207 → 0.496046 — 新最良を2段階更新**
+
+**提出日**: add_w15 2026-08-22 19:28:34、add_w25 2026-08-23 00:02:48（当日の投稿制限で
+一度保留、翌日確認）。`86_`のCB134×TabPFN134ブレンドを`85_`の最良ブレンド(0.496944)に
+15%/25%追加する2候補（重み探索なし）。
+
+## 124.1 結果
+
+| 構成 | Public | 差 |
+|---|---|---|
+| **add_w15** | **0.496207** | 85_比-0.000737改善、新最良 |
+| **add_w25** | **0.496046** | add_w15比-0.000161改善、さらに新最良 |
+
+相関0.9715とやや高め（現最良の土台に既にプールが大きな重みで含まれるため）だったが、
+new_blend自体の性能(0.504235)と現最良(0.496944)の絶対性能差+0.0073はTabPFNの過去の
+成功例の範囲内で、実際に両候補ともPublicで改善した。
+
+関連: [[best-submission-status]] [[tabpfn-ensemble-partner]] [[private-lb-variance-strategy]]
+
+---
+
+# 125. `93_tabpfn_top20pct_on_77` 提出結果: **89列がPublicで134列を上回る — 分解能未満の逆転が再発**
+
+**提出日**: tabpfn89_classifier 2026-08-23 08:44:24、blend_argmin_w20pct 2026-08-23 08:44:40。
+TabPFNは列数が少ないほど強い（`63_`: 441→150列で改善）という知見の延長で、`84_`の
+TOP30PCT(134列)よりさらに絞ったTOP20PCT(89列)を試した。局所OOFでは89列の方が134列より
+わずかに悪化して見えた（CB89=0.518415/TabPFN89=0.503880/ブレンド=0.502419、いずれも
+134列版より+0.0011〜+0.0028大きい、ただし分解能±0.0043未満）。
+
+## 125.1 結果
+
+| 構成 | 89列 | 134列(参考) | 差 |
+|---|---|---|---|
+| **TabPFN単体** | **0.504065** | 0.507300 | **-0.003235(改善)** |
+| **ブレンド(w_cb=0.20)** | **0.502608** | 0.504235 | **-0.001627(改善)** |
+
+局所valの「悪化」（分解能未満）がPublicでは明確な改善に転じた——`84_`TOP30PCTに続く
+2例目の「分解能未満の局所val→Public逆転」。TabPFN単体でも`84_`のCatBoost単体記録
+(0.509500)を-0.005435更新。
+
+**How to apply**: TabPFNも列数の効果は単調ではなく、Publicで確認するまで判定できない。
+[[validation-asymmetry]]の教訓がTabPFN×CatBoostブレンドでも直接裏付けられた。
+
+関連: [[tabpfn-ensemble-partner]] [[validation-asymmetry]]
+
+---
+
+# 126. `94_blend_tabpfn89_into_best` add_w25 提出結果: **0.495570 — 現時点の総合最良**
+
+**提出日**: 2026-08-23 08:48:06。`93_`の89列版CB89×TabPFN89ブレンド(Public 0.502608、
+134列版0.504235を-0.001627更新)を、`85_`の最良ブレンド(0.496944)に25%追加する構成
+（134列版ブレンドを上位互換として差し替え、重み探索なし）。
+
+## 126.1 結果
+
+Public 0.495570——`92_`のadd_w25(0.496046)比**-0.000476改善**。89列版ブレンドが
+アンサンブルに統合しても134列版より強いことを確認。
+
+**スコア履歴（アンサンブル系）**: 0.508699(旧pool) → 0.497608(xxxx_v4×プール、110節)
+→ 0.496944(+84_TOP30PCT×0.15、121節) → 0.496207 → 0.496046(+TabPFN×CatBoostブレンド、
+124節) → **0.495570（現最良、本節）**。
+
+w15版（85_ベース×0.85+新89列版ブレンド×0.15）は、add_w25が既に改善を示した後の
+[[ensemble-oof-overfitting]]の教訓（重み探索は過学習する）を踏まえ、見送りとした。
+
+関連: [[best-submission-status]] [[tabpfn-ensemble-partner]] [[ensemble-oof-overfitting]]
+
+---
+
+# 127. `95_blend_autogluon_into_best` poolc_w25/ag50_w25 提出結果: **両方とも悪化 — 既存AutoGluon予測の追加路線を終了**
+
+**提出日**: 2026-08-23 10:12（poolc_w25は10:12:03、ag50_w25は10:12:19）。
+現最良(`94_`のadd_w25、Public 0.495570)に、既存のAutoGluon予測をさらに追加できるかを検証。
+2つのソースを並行して試した:
+
+- **poolC**: full441列、AutoGluon 8回学習の平均、Public 0.514050（単発実行より安定した代表値、
+  [[private-lb-variance-strategy]]の分散最小化方針で採用してきた既定路線）
+- **AG50**: `50_autogluon_memofix`の単発実行、Public 0.513108（poolCより実測は良いが、
+  `64_autogluon_more_seeds.ipynb`で「運の良い1回の引き」と位置付けられている）
+
+ユーザーから「AG50の方がPublicスコアが良いのでは」という指摘があり、両方を並行して
+試す構成にした（[[private-lb-variance-strategy]]の分散最小化方針と、実測最良を取る方針の
+どちらが正しいかは事前には分からないため）。
+
+## 127.1 結果
+
+| 構成 | Public | 対現最良(0.495570) |
+|---|---|---|
+| +プールC×0.25 | 0.498429 | +0.002859悪化 |
+| +AG50×0.25 | 0.498146 | +0.002576悪化 |
+
+両方とも悪化した。AG50の方がわずかに良かった（実測最良のAG50が単発の運だけではなく
+プールCよりわずかに実力上位という説と整合）が、どちらもアンサンブルに追加する価値はなかった。
+
+## 127.2 原因（2つ）
+
+1. **古い特徴量**: プールC/AG50は441列の古い特徴量パイプラインで、`54_`のL2×Mや`77_`の
+   最終月カテゴリを含んでいない。新しい特徴量をAutoGluonに統合する試みは
+   [[l2-m-risk-count-confirmed]]で既に2回失敗している（`56_`でL2×M統合→weighted/best_single
+   とも2/2でPublic悪化）。
+2. **冗長性**: 現最良との相関が0.975〜0.977と非常に高い（`95_`実行時に確認済み）。
+   現最良の土台(`85_`)には既にプールが大きな重みで含まれているため、追加しても
+   新しい情報がほとんど増えず、むしろTabPFN89/CatBoost89等の新しい要素の
+   相対的な重みを薄めるだけだった。
+
+**How to apply**: 既存AutoGluon予測(プールC・AG50・その他441列ベースの派生)をこの
+アンサンブルにこれ以上追加する路線は閉じる。AutoGluon側を新しい特徴量で作り直す路線も
+[[l2-m-risk-count-confirmed]]により既に閉じている。
+
+**総合最良は変わらず `94_`のadd_w25（Public 0.495570）。**
+
+関連: [[best-submission-status]] [[l2-m-risk-count-confirmed]] [[private-lb-variance-strategy]]
+[[tabpfn-ensemble-partner]]
+
+---
+
+# 128. `96_ft_transformer_on_84_top30pct` 実行準備完了・分岐計画（未提出・Colab実行待ち）
+
+**注**: 本節はPublic提出結果ではなく、Colab実行前の状態と結果後の判断計画の記録。
+GBDT(CatBoost)・表形式基盤モデル(TabPFN)とは異なる第3の系統として**FT-Transformer**
+（Feature Tokenizer + Transformer、Gorishniy et al.）を初めて試す。84_の列選択を
+TOP_PCTS=[0.30, 0.20, 0.15]の3水準、同一実行内で比較する設計（1fitが数分程度なので
+TabPFNのように別スクリプトに分ける必要がない）。
+
+## 128.1 環境エラー2件と修正
+
+1. **旧`rtdl`パッケージ(0.0.13)がColabでpip依存衝突**: `ResolutionImpossible`で
+   インストール自体が失敗し、同じセルの`catboost`まで巻き添えで未インストールに
+   （`ModuleNotFoundError: No module named 'catboost'`）。著者公式の後継
+   `rtdl_revisiting_models`（PyPI確認済み、依存は`torch>=1.8,<3`のみ）に切替。
+   API変更: `rtdl.FTTransformer.make_default(...)` →
+   `FTTransformer(n_cont_features=..., **FTTransformer.get_default_kwargs())`、
+   `model.optimization_param_groups()` → `model.make_parameter_groups()`。
+2. **切替後、Google Drive共有パス経由でpipインストールセルだけが巻き戻る事故**:
+   `.py`側は正しく更新されていたが`.ipynb`のpipセルだけ`rtdl_revisiting_models`
+   抜きの内容に戻っていた（他9コードブロックは`.py`と完全一致のまま）。Colabのタブを
+   開いたまま保存すると、共有Drive経由でローカルの修正が上書きされうる
+   （[[checkpoint-drive-sync-gotcha]]の新事例として追記済み）。再パッチして
+   `.py`/`.ipynb`全ブロック一致を確認済み。
+
+## 128.2 結果が出た後の判断ツリー（[[ft-transformer-96-action-plan]]に事前登録）
+
+1. **CatBoost(134/89列)と互角以上**（86_/93_のTabPFN前例の再現）: 良かった水準の
+   CB×FTブレンドを、`94_`と同じ要領で現最良アンサンブル(Public 0.495570)に15%/25%の
+   事前登録重みで追加検証（重み探索はしない、[[ensemble-oof-overfitting]]）。
+2. **明確に劣るが致命的ではない**: ユーザー方針「最初はスコアが悪くても複数回の
+   試行錯誤をしてから切り捨てを検討したい」に従い、`88_`のロジスティック回帰と同じ
+   流儀で1回に1つだけ変更して再試行（学習率/d_block/n_blocks/バッチサイズ等）。
+3. **GRU/MLP級に絶対性能が崩壊**（絶対差 ≳0.05〜0.1）: NN系統も
+   [[cpu-model-zoo-closed]]の系譜に加えて完全に閉じる。
+
+## 128.3 96_成功時の次の一手（未着手、事前登録のみ）
+
+現状FT-Transformer/TabPFN/CatBoostはいずれも84_由来の同じ特徴量プールを共有しており、
+多様性は機構の違いだけに依存している。フォーク調査（本セッション）でCB89/TabPFN89と
+xxxx_v4の派生・交互作用特徴量がほぼ完全に独立していることを確認済み
+（[[tabpfn-ensemble-partner]]2026-08-23追記）。よって「FT-Transformer(新機構)を
+xxxx_v4の独自特徴量(新特徴量プール)に適用する」なら機構と特徴量プールの両軸で
+同時に多様性を稼げる、まだ試していない組み合わせ。96_がブランチ1か2で使えると
+分かった後に検討する。
+
+関連: [[ft-transformer-96-action-plan]] [[checkpoint-drive-sync-gotcha]]
+[[tabpfn-ensemble-partner]] [[cpu-model-zoo-closed]] [[ensemble-oof-overfitting]]
+[[best-submission-status]]
+
+# 129. 96_ft_transformer_on_84_top30pct 実行結果
+
+**注**: 本節もPublic提出結果ではなく、Colab実行完了後のOOF局所結果と判断の記録
+（[[ft-transformer-96-action-plan]]事前登録128の判断ツリー適用）。
+
+Colabで完走。生存者フィルタ後(n=2632)のKFold OOF logloss（`*_oofpreds.npy`から
+`log_loss`を直接再計算して確認、ログファイルは実行途中でエントリが途切れていたため
+npyの方を正とした）:
+
+| 水準 | 列数 | CatBoost val | FT-Transformer val | 相関 | argminブレンド |
+|---|---|---|---|---|---|
+| TOP30PCT | 134 | 0.515581 | 0.550568 | 0.9153 | w_cb=0.90, val=0.515485 |
+| TOP20PCT | 89  | 0.518415 | 0.550014 | 0.9112 | w_cb=0.90, val=0.518119 |
+| TOP15PCT | 67  | 0.514481 | 0.546026 | 0.9218 | w_cb=0.90, val=0.514294 |
+
+提出ファイルは9個生成済み（`data/output/20260823/`、cb/ft単体×3水準+argminブレンド×3水準、
+いずれもPublic未提出）。
+
+## 129.1 判定: branch 2（明確に劣るが致命的でない、やや悪い側）
+
+CatBoost比のギャップは+0.031〜+0.035で、事前登録した判断ツリーのbranch 2
+（+0.01〜+0.03程度を想定）のやや悪い側に位置する。さらに3水準ともargminブレンドの
+重みがw_cb=0.90で、FT側の寄与はCB単体からわずか0.0001〜0.0003しか改善していない
+——[[validation-asymmetry]]の分解能下限(±0.0043)を大きく下回り、ブレンドする価値が
+局所OOFでは実質無い。現行アンサンブルへの統合はまだ正当化されない。
+
+## 129.2 次の一手: ハイパーパラメータを1点だけ変更して再試行
+
+ユーザー方針「複数回の試行錯誤をしてから切り捨てを検討したい」（[[ft-transformer-96-action-plan]]
+128参照）に従い、`88_`と同じ流儀で1回に1つだけ変更する。候補（優先順）:
+1. `FT_EPOCHS`100→200 + `FT_PATIENCE`を緩める（CPU学習でearly stoppingが早すぎ
+   未収束の可能性）
+2. `FT_LR`1e-4→3e-4や1e-3に引き上げ
+3. `FTTransformer.get_default_kwargs()`を使わず`n_blocks`/`d_block`を明示的に縮小
+   （小データ2761行に対し既定アーキテクチャが過剰容量の可能性）
+
+関連: [[ft-transformer-96-action-plan]] [[validation-asymmetry]]
+[[blend-curve-beats-val-margin-gate]] [[cpu-model-zoo-closed]]
+
+# 130. 96_ イテレーション2・3、TOP15PCT単独でのハイパラ探索 + 97_作成
+
+**注**: 本節もPublic提出結果ではなく、Colab実行完了後のOOF局所結果と作業記録
+（[[ft-transformer-96-action-plan]]事前登録の続き）。
+
+高速反復のためTOP15PCT単独・FT_SEEDS=1・GPU Runtimeに切替。
+
+| | CatBoost val | FT-Transformer val | 相関 | argminブレンド |
+|---|---|---|---|---|
+| iter1（元設定, epoch100/pat10, seed×3） | 0.514481 | 0.546026 | 0.9218 | w_cb=0.90 |
+| iter2（epoch200/pat15） | 0.519994 | 0.569670 | 0.8835 | w_cb=0.90 |
+| iter3（n_blocks=1, epoch100/pat10に復元） | 0.519994 | 0.552574 | 0.8938 | w_cb=0.90, -0.0008 |
+
+## 130.1 判定: 84_特徴量プールでのFT-Transformer検証を終了
+
+iter2（学習を伸ばす）は明確に悪化——「early stoppingが早すぎて未収束」という仮説は誤りで、
+内部検証10%という小さくノイジーな基準に対して過学習方向に進んだと解釈。iter3（容量縮小、
+`FTTransformer.get_default_kwargs(n_blocks=1)`でd_block 192→96）はiter2の悪化をほぼ解消
+したがiter1を上回らず、CB比ギャップ+0.0326はCatBoost側の環境ノイズ(+0.0055、
+[[catboost-gpu-nondeterminism]])を差し引くとiter1とほぼ同水準。3方向とも収束先が同じ
+（CB比+0.03前後、相関0.88〜0.92、argmin改善は分解能未満±0.0043）ため、84_プールでの
+FT-Transformerハイパラ探索はこれ以上伸びないと判断し検証終了（[[cpu-model-zoo-closed]]と
+同じ扱い）。
+
+## 130.2 97_ft_transformer_on_xxxxv4_features を作成、Colab投入済み
+
+未着手だった「FT-Transformer × xxxx_v4独自特徴量プール」を実装。xxxx_v4.ipynb（著者オリジナル
+パイプライン）から月次集約・入社時特徴量・独自regexメモパース（84_/96_とは別実装）を移植し、
+生テキストはFT-Transformer対応のためTF-IDF+SVD(45列)に置換——CB/FTが同一の144列
+（xxxx_v4本来の集約・パース由来99列+TF-IDF/SVD45列）を見る設計。FT-Transformer設定は
+iter3の構成を踏襲(n_blocks=1・epoch100・patience10・seed=1)。ネスト列選択は無し
+（xxxx_v4本来がFULL構成のみのため、`82_`と同じ方針）。
+
+**発見・修正したバグ**: `build_features()`が生テキスト3列と`初期部署ID`をドロップし忘れ、
+想定144列に対し148列になっていた（ローカルスモークテストで発見・修正、144列で確認）。
+
+**発見した環境問題（コードのバグではない）**: CatBoost.fit()の直後に同一プロセスで
+FTTransformerのforward passを呼ぶとmacOSローカルでセグフォルトする
+（[[local-catboost-torch-segfault]]新規登録、`OMP_NUM_THREADS=1`等で回避可能、Colabでは
+`96_`が同じ交互呼び出しパターンで3回無事完走済み）。
+
+縮小設定でのエンドツーエンド完走をローカル確認後、Colabに投入（GPU Runtime前提）。結果待ち。
+
+関連: [[ft-transformer-96-action-plan]] [[local-catboost-torch-segfault]]
+[[cpu-model-zoo-closed]] [[tabpfn-ensemble-partner]] [[validation-asymmetry]]
+
+# 131. 97_ft_transformer_on_xxxxv4_features 実行結果——FT-Transformer系統終了
+
+**注**: 本節もPublic提出結果ではなく、Colab実行完了後のOOF局所結果と最終判断の記録。
+
+生存者フィルタ後(n=2632)のKFold OOF logloss（`*_oofpreds.npy`から再計算。ログはローカル
+smoke testと同一ファイルを共有していたため実行分のエントリが記録されておらず、出力ファイル
+のタイムスタンプ・サイズから実データと判断——[[checkpoint-drive-sync-gotcha]]と同系統）:
+
+| | CatBoost val | FT-Transformer val | 相関 | argminブレンド |
+|---|---|---|---|---|
+| xxxx_v4独自144列プール | 0.528230 | 0.609711 | 0.8087 | w_cb=1.00(FT寄与ゼロ) |
+
+## 131.1 判定: branch 3（GRU/MLP級の崩壊）、FT-Transformer系統を終了
+
+CB val自体も84_プール(0.514〜0.518)より悪化（xxxx_v4本来の集約はL2xM交互作用・
+クラスタリング・四半期特徴量が無くシンプルなため妥当）。FT-Transformerとのギャップは
++0.0815——96_の最悪イテレーション(iter2, +0.0498)すら超え、事前登録した判断ツリーの
+branch 3（≳0.05〜0.1）に該当。argminブレンドの最適重みはw_cb=1.00でFT-Transformerの
+寄与はゼロ。相関も0.81と84_プールの0.88〜0.92より低いが、これは多様性ではなく単に両モデル
+の予測が悪化する方向に乖離しているだけで、ブレンド価値には繋がらなかった。
+
+**最終判断**: 84_プール(96_、3イテレーション)とxxxx_v4独自プール(97_)の両方でFT-Transformer
+を検証し、いずれもCatBoostに明確に劣り、ブレンド寄与もほぼ0という同じ結論に達した。特徴量
+プールを変えても機構自体がこのデータセット（2761行・カテゴリ列中心の企業データ）に適して
+いないと判断し、FT-Transformer系統を[[cpu-model-zoo-closed]]と同じ扱いで終了する。
+
+関連: [[ft-transformer-96-action-plan]] [[cpu-model-zoo-closed]] [[validation-asymmetry]]
+[[local-catboost-torch-segfault]]
+
+# 132. 98_blend_xxxxv4pool_cb_into_best 作成——97_のCatBoost単体(xxxx_v4独自144列プール)を現最良ブレンドに追加
+
+**注**: 本節もPublic提出結果ではなく、ローカルでのブレンド候補生成・相関確認の記録。
+
+`97_`はFT-Transformer機構の検証が主目的だったが、副産物として得たCatBoost単体モデル
+（xxxx_v4独自144列プール、局所val=0.528230）は、FT-Transformerとの比較では敗者でも、
+既存の447列パイプラインとは特徴量エンジニアリングがほぼ完全に独立した予測源である。
+`82_`（xxxx_v4由来8列の455列統合、Public 0.508039）・`85_`（xxxx_v4×プールブレンド、
+Public 0.497608）に続く「xxxx_v4系統モデルを現最良ブレンドに混ぜる」新しい試みとして、
+85_/94_と同じ非チューニング方針（重み探索はせず、事前登録した少数の固定重み候補をPublicで
+検証）でスクリプトを新規作成した。
+
+現最良(`94_add_w25`、Public 0.495570)のTest予測と97_のcb_classifier Test予測を読み込み、
+相関 = **0.9440**（85_/94_で過去に混ぜた相手より高め——xxxx_v4×プールの既知の相関0.90程度
+[[best-submission-status]]よりさらに高く、現最良ブレンド自体が既に複数のxxxx_v4系統モデルを
+含んでいるためと考えられる）。
+
+出力3ファイル（10%/15%/25%を現最良に追加、重み探索はしていない）:
+
+| config | 構成 | 予測mean/std |
+|---|---|---|
+| add_w10 | new_model×0.10 + current_best×0.90 | 0.5889 / 0.2731 |
+| add_w15 | new_model×0.15 + current_best×0.85 | 0.5890 / 0.2708 |
+| add_w25 | new_model×0.25 + current_best×0.75 | 0.5892 / 0.2663 |
+
+相関0.9440は85_/94_で過去に試した相手（TabPFN89系統0.97台、新CatBoost系統はより低い想定）
+と比べても高い部類で、[[cpu-model-zoo-closed]]の「相関0.78〜0.90でも単体が弱すぎれば希釈負け」
+と対照的に、ここは「相関がやや高いので改善幅は小さい可能性があるが、単体val(0.528230)は
+84_TOP30PCTの0.509500より弱いとはいえ89_/90_/91_の弱学習器群(0.535〜0.65)よりは強い」という
+中間的なケース。ブレンド価値の有無はargminではなくPublicで確認する方針（[[ensemble-oof-overfitting]]）。
+Public提出結果は未取得（次回セッションで追記）。
+
+関連: [[best-submission-status]] [[ensemble-oof-overfitting]] [[private-lb-variance-strategy]]
+[[cpu-model-zoo-closed]] [[ft-transformer-96-action-plan]]
+
+# 133. 98_blend_xxxxv4pool_cb_into_best Public結果——全3候補が悪化、現最良94_add_w25(0.495570)のまま
+
+| config | Public | 対現最良(0.495570) |
+|---|---|---|
+| add_w10 | 0.495896 | +0.000326悪化 |
+| add_w15 | 0.496244 | +0.000674悪化 |
+| add_w25 | 0.497279 | +0.001709悪化 |
+
+3候補とも単調に悪化し重みを増やすほど悪化幅も拡大（分解能±0.0043未満の個々の値ではなく、
+3点の単調な方向一致が「本物の悪化」の傍証）。事前に確認していたcorr(new_model, current_best)
+=0.9440が高すぎたため、97_のxxxx_v4独自144列プールCatBoost単体は現最良ブレンドに既に含まれる
+xxxx_v4系統成分（82_/85_由来）と重複していたと解釈。現最良は`94_add_w25`(0.495570)のまま変わらず。
+
+これにより97_の成果物（CatBoost単体・FT-Transformer単体とも）はアンサンブル追加候補として
+完全に不採用が確定し、FT-Transformer調査全体（96_/97_/98_）を終了する。
+
+memory更新: [[best-submission-status]]に98_セクション追加＋冒頭の現最良表記を92_→94_に修正
+（前回セッションで94_更新後にこのファイルの冒頭が同期されていなかった）、
+[[ft-transformer-96-action-plan]]に追記4を追加、MEMORY.mdの該当2行を更新。
+
+関連: [[best-submission-status]] [[ft-transformer-96-action-plan]] [[ensemble-oof-overfitting]]
+[[private-lb-variance-strategy]]
+
+# 134. 99_tabpfn_on_xxxxv4_features を作成、Colab投入待ち
+
+「モデル機構×特徴量プール」の2軸表で未着手だった「TabPFN v2 × xxxx_v4独自144列プール」を検証。
+97_と全く同一の特徴量エンジニアリング(月次集約・入社時特徴量・独自regexメモパース+TF-IDF/SVD、
+144列)を流用し、CatBoost側は97_が保存済みの`cb_oofpreds.npy`/`cb_testpreds.npy`をそのまま
+読み込んで再利用する（StratifiedKFold(n_splits=5, random_state=42)のfold割当が97_と完全に
+一致するため、再学習不要）。ローカルでCB oofを再読込・再計算し、97_のログ記載値(val=0.528230)
+と完全一致することを確認済み。TabPFN統合は93_/63_と同一パターン(tabpfn==2.2.1固定・GPU必須・
+シード平均[42,2024,7])。
+
+CatBoostを一切呼ばないため[[local-catboost-torch-segfault]]の交互呼び出しセグフォルトは
+本スクリプトでは発生しない。ローカルでは特徴量生成部分のみ dry-run し、144列であることと
+97_のCB oof値との一致を確認済み（TabPFN自体はtabpfn未インストールのためローカル未実行）。
+Colabに投入し、GPU Runtimeでの実行結果待ち。
+
+出力2ファイル: tabpfn_classifier / blend_argmin_w{N}pct（cb_classifierは97_のものを流用）
+
+関連: [[tabpfn-ensemble-partner]] [[ft-transformer-96-action-plan]] [[best-submission-status]]
+[[local-catboost-torch-segfault]]
+
+# 135. 99_tabpfn_on_xxxxv4_features 実行結果——TabPFNもxxxx_v4プールでは弱く、Public提出見送り
+
+**注**: 本節はPublic提出結果ではなく、Colab実行完了後のOOF局所結果と判断の記録。ログファイルは
+Colab実行分のエントリが記録されておらず（前回97_と同型のDrive共有ログの問題、
+[[checkpoint-drive-sync-gotcha]]）、`*_oofpreds.npy`/`*_testpreds.npy`から再計算して判断した。
+
+| | val(OOF) | CatBoost比 | 相関(OOF) |
+|---|---|---|---|
+| CatBoost(144列, 97_保存値を再検証) | 0.528230 | — | — |
+| TabPFN(144列) | 0.542703 | +0.014473(悪化) | 0.9242 |
+
+ブレンドargmin: w_cb=0.80, val=0.527199（CB単体比-0.001031、KFold OOF分解能±0.0043未満）。
+
+Test予測での現最良ブレンド(94_add_w25)との相関: TabPFN144単体=0.8854（98_で悪化確定した
+cb144単体の0.9440より低く多様性は高い）、blend_argmin_w80pct=0.9440（cb144単体とほぼ同一
+分布のため98_で否定済みの候補とほぼ重複）。TabPFN144単体の絶対val(0.5427)は
+[[cpu-model-zoo-closed]]で「w_cb=1.0(寄与ゼロ)」だった5モデル群(val 0.535〜0.65)と同じ
+「弱すぎる」領域にあり、多様性が高くても寄与ゼロになる可能性が高いと判断し、**Public提出は
+見送った**。
+
+**結論**: 「モデル×xxxx_v4独自プール」のセルはFT-Transformer(97_)・TabPFN(99_)ともに
+CatBoost比で悪化し、いずれも不採用。TabPFNの強さは84_/89_プール特有の細粒度交互作用
+特徴量(L2xM等)との相性によるプール依存の効果であり、モデル機構一般の優位ではないと
+結論を修正した（詳細は[[tabpfn-ensemble-partner]]の2026-08-25追記）。
+
+関連: [[tabpfn-ensemble-partner]] [[cpu-model-zoo-closed]] [[ft-transformer-96-action-plan]]
+[[best-submission-status]] [[checkpoint-drive-sync-gotcha]]
+
+# 136. 100_tabpfn_top10pct_on_77 を作成、Colab投入待ち
+
+ユーザー指示「TabPFNの列数削減をさらに追う」に基づき作成。TabPFNは`63_`(441列)→`86_`(134列)
+→`93_`(89列)と列数を絞るほど単調にPublicが改善してきた（0.507300→0.504065）。この傾向が
+続くかを確認するため、`93_`と全く同一の設計（ネストされた特徴量選択、CatBoost/TabPFN比較、
+ブレンド曲線argmin）で選択率だけを20%→10%（447列の10%=45列）に変更した単一パラメータ変更版。
+`88_`の「1回に1パラメータだけ変える」反復スタイルを踏襲。
+
+ローカルでは特徴量エンジニアリング部分のみdry-run（tabpfnモジュールをスタブ化してimportの
+壁を回避）し、447列→TOP10PCTで45列になることを確認済み（TabPFN自体は未インストールのため
+ローカル未実行、CatBoost選択ステップの実処理も未実行）。
+
+出力3ファイル: cb10_classifier / tabpfn10_classifier / blend_argmin_w{N}pct
+Colabに投入し、GPU Runtimeでの実行結果待ち。
+
+関連: [[tabpfn-ensemble-partner]] [[validation-asymmetry]] [[blend-curve-beats-val-margin-gate]]
+
+# 137. 100_tabpfn_top10pct_on_77 実行結果——列数削減の傾向が45列で反転、Public提出見送り
+
+**注**: 本節はPublic提出結果ではなく、Colab実行完了後のOOF局所結果と判断の記録
+（97_/99_と同様、ログはDrive共有の関係でColab実行分が記録されておらず、
+`*_oofpreds.npy`から再計算した）。
+
+| | val(OOF) | 89列(93_)比 |
+|---|---|---|
+| CB(45列) | 0.527236 | +0.008821(悪化) |
+| TabPFN(45列) | 0.514939 | +0.011059(悪化) |
+| ブレンドargmin(w_cb=0.30) | 0.512871 | +0.010452(悪化、93_のブレンド0.502419比) |
+
+`63_`(441列)→`86_`(134列)→`93_`(89列)で一度も反転しなかった「列数が少ないほどTabPFNが強い」
+傾向が、45列でついに反転。3指標すべてがKFold OOF分解能±0.0043を大きく超える幅で悪化しており
+（89列比+0.0088〜+0.0111）、[[validation-asymmetry]]の「分解能を超える差は方向を信頼してよい」
+に該当するため、Public確認は不要と判断し提出を見送った。
+
+**結論**: TabPFNの列数削減は89列(93_)が最良点として確定。これ以上の削減は不要——ユーザー
+指示の「列数削減をさらに追う」方向はこれで完了・終了。
+
+関連: [[tabpfn-ensemble-partner]] [[validation-asymmetry]] [[best-submission-status]]
+
+# 138. 101_catboost_top40_60pct_on_77 Public結果——TOP30PCTが再確定、40%は非単調に最悪
+
+| 構成 | 列数 | Public | 対TOP30PCT(0.509500) |
+|---|---|---|---|
+| TOP40PCT | 179 | 0.515048 | +0.005548(悪化、全構成中最悪) |
+| TOP60PCT | 268 | 0.510041 | +0.000541(ノイズ床0.0023未満、ほぼ同着) |
+
+TOP20PCT(0.513115)→TOP30PCT(0.509500)→TOP40PCT(0.515048)→TOP60PCT(0.510041)→
+baseline_447(0.511547)と列数に対して非単調。TOP30PCTが引き続き単層CatBoost(54_系)の
+最良点として確定し、40%/60%への拡張では更新できなかった。ユーザー指示「30%〜間を探る」
+検証はこれで完了、閾値探索を終了する。
+
+memory更新: [[validation-asymmetry]]に2026-08-25追記8を追加。
+
+関連: [[validation-asymmetry]] [[best-submission-status]]
+
+# 139. 102_autogluon_on_77_features を作成、Colab投入待ち
+
+現最良(94_add_w25)の展開後ウェイト22.3%を占めるAutoGluonプールC（441列・44_〜51_世代の
+古い特徴量パイプライン）を、現行447列(77_)の特徴量パイプラインで作り直す。`56_`でL2xM統合を
+「悪化」と判定していたが、`62_`でAutoGluonの単一実行シード間ノイズ(weighted MAD 0.0238/
+best_single MAD 0.0372)が判明し「未決」に自己訂正されていたため、新特徴量でのAutoGluon検証は
+これが初めての正式な再挑戦になる。
+
+構成: `51_autogluon_catboost_bias`のAutoGluon設定（presets=best_quality, excluded_model_types=
+["FASTAI","NN_TORCH","KNN"], num_bag_folds=8, num_stack_levels=1, dynamic_stacking=False,
+time_limit=7200秒/fit）をそのまま踏襲し、新たに`num_gpus=1`でCatBoost/LightGBM/XGBoostの
+GPU学習を有効化。ノイズ床を超えるためseed=[42,2024,7]の3回独立実行+平均（[[l2-m-risk-count-confirmed]]
+の自己訂正「最低3シード必要」に対応）。
+
+**運用上の注意**: 旧44_〜51_世代の同等実行はCPUで10時間超かかった実績がある（ユーザー報告）。
+`time_limit`はAutoGluonのソフトな目標に過ぎず、best_qualityプリセットのzeroshotポートフォリオ
+×8-foldバギングの分だけ大きく超過しうるため、GPUを足しても同程度かかる可能性がある。
+**まずseed=42だけ様子見で実行し、実測時間を確認してから同じセルを再実行して残り2シードを
+継続する**運用とする（`fit_autogluon`はtagごとにチェックポイントされ、完了済みシードは
+自動スキップされる）。
+
+ローカルでは特徴量エンジニアリング部分のみdry-run済み（447列、`ag_full`(2761,449)・
+`test_features_full`(2502,448)を確認、AutoGluon自体はローカル未実行）。
+
+出力: シードごとにweighted/best_single（計6ファイル）+ 3シード平均版2ファイル。
+置き換え/追加どちらのブレンドパターンで現最良に組み込むかは、結果を見てから別スクリプトで決める。
+
+関連: [[l2-m-risk-count-confirmed]] [[best-submission-status]] [[refit-chaos-noise-floor]]
+
+# 140. 102_autogluon_on_77_features 実行結果——所要時間は大幅短縮も、3シードが完全同一という問題を発見
+
+**注**: 本節もPublic提出結果ではなく、Colab実行完了後の結果と判断の記録。
+
+**所要時間**: 3シード合計で約3時間（16:33→19:28、1シードあたり約58分）。前回のCPU実行
+(10時間超)から大幅短縮——num_gpus=1の効果、あるいは設定・環境差による可能性がある。
+
+| seed | weighted val | best_single val |
+|---|---|---|
+| 42 | 0.489072 | 0.490970 |
+| 2024 | 0.489072 | 0.490970 |
+| 7 | 0.489072 | 0.490970 |
+
+**問題発見**: 3シードの結果が予測平均まで完全に一致。fit_timeはわずかに異なる(242.04秒/
+240.13秒/252.37秒)ため実際に3回独立学習してはいるが、`seed_everything(seed)`によるPython/
+numpy側の乱数固定はAutoGluon内部のzeroshotポートフォリオ選択・バギングfold分割には伝播して
+おらず、意図した分散低減効果はゼロだった。詳細と訂正は[[l2-m-risk-count-confirmed]]の
+2026-08-25追記を参照。
+
+**相関診断(Test予測)**: weighted_avg3seed(実質1回分と同一) — corr(旧プールC)=0.9695 /
+corr(現最良94_add_w25)=0.9588。best_single_avg3seed — corr(旧プールC)=0.9680 /
+corr(現最良94_add_w25)=0.9568。
+
+**次のアクション（ユーザー判断）**: `weighted_avg3seed`を単体でPublic提出し、旧プールC
+(0.514050)と直接比較する。94_add_w25への置き換え/追加ブレンドは、この結果を見てから
+別スクリプトで作成する。
+
+関連: [[l2-m-risk-count-confirmed]] [[best-submission-status]] [[refit-chaos-noise-floor]]
+
+# 141. 102_autogluon_on_77_features weighted_avg3seed Public結果——判定不能のまま打ち切り
+
+**Public 0.520798**。旧プールC(0.514050)比+0.006748悪化。ただしこの差はAutoGluonの
+既知ノイズ床(単一実行MAD 0.024〜0.037)より小さく、「悪化した」と結論づけることもできない
+判定不能域。加えて3シードが実質1回分と同一だった問題（#140参照）により、これは
+「新447列AutoGluon実質1回 vs 旧プールC(8回平均)」という不公平な比較にしかなっていない。
+
+**最終判断**: `56_`(2026-08-15)から3回目の検証(56_→62_→102_)でも「LMブロック/新特徴量の
+AutoGluon統合が効くか」は決着せず。追加コストを投じる優先度は低いと判断し、94_add_w25への
+置き換え/追加ブレンドは実施せず、この路線を打ち切る。現最良は引き続き`94_add_w25`
+(0.495570)のまま。
+
+memory更新: [[l2-m-risk-count-confirmed]]に追記2を追加(打ち切り判定)、MEMORY.mdの該当行を更新。
+
+関連: [[l2-m-risk-count-confirmed]] [[best-submission-status]] [[refit-chaos-noise-floor]]
+[[validation-asymmetry]]
+
+# 142. 103_blend_final6_hedge_into_best 作成——Private LB向け2枠目の保険的ブレンド
+
+ユーザーが最終提出2枠のうち1枠に検討していた`74_final6_ensemble_mean`(Public 0.501006、
+AutoGluonを一切含まない6モデル等重み平均)は、現最良`94_add_w25`(0.495570)より+0.005436
+劣り単体では不採用水準。しかし「AutoGluonに依存しない候補を保険として持つ」という
+[[private-lb-variance-strategy]]の分散低減目的自体には価値があるため、現最良に15%だけ
+追加する折衷ブレンドを作成した（重み探索なし、85_/94_と同じ非チューニング方式）。
+
+**発見**: corr(74_final6, 94_add_w25) = **0.9945**——`best_submission_status.md`に記録済みの
+旧測定値0.9859より明確に高い。94_add_w25がその後もxxxx_v4/プールC系統を土台に進化を
+重ねた結果、74_final6との共通祖先由来の重複が当時よりさらに増えていたと考えられる。
+分散低減効果は当初想定より小さい可能性が高いが、構造的に完全に同一ではない
+（74_final6はCB89/TabPFN89/CB_TOP30PCTを一切含まない）ため、保険としての価値はゼロではない。
+
+出力1ファイル: `20260825_103_blend_final6_hedge_into_best_add_w15_submission.csv`
+（予測平均0.5886, std0.2767）。Private LB向けの最終提出2枠目候補として、Publicでの
+改善/悪化に関わらずそのまま採用する想定（Public最良化が目的ではない）。
+
+関連: [[private-lb-variance-strategy]] [[best-submission-status]] [[ensemble-oof-overfitting]]
+
+# 143. 103_blend_final6_hedge_into_best add_w15 Public結果——ノイズ内でほぼ同着、保険としての実効性は小さい
+
+**Public 0.496093**。現最良94_add_w25(0.495570)比+0.000523——同一レシピ再実行のノイズ床
+(0.0023)未満で、統計的にほぼ同着。事前に確認したcorr=0.9945が示す通り、15%程度の追加では
+94_add_w25とPublic上ほぼ区別がつかない結果になった。
+
+**評価**: この候補は「AutoGluon非依存の保険」を狙ったものだが、94_add_w25とスコア・相関
+ともにほぼ同一のため、**Private LBで94_add_w25が万一大きく崩れた場合の実質的な保護には
+なりにくい**（同じ方向に動く可能性が高い）。真に分散低減を狙うなら、より相関の低い候補
+（例えば74_final6を生のまま、または追加割合をもっと大きくする）を2枠目に選ぶ方が
+ヘッジとして機能する可能性が高いが、その場合Public期待値の犠牲は大きくなる
+（74_final6生の場合、対94_add_w25で+0.005436）。
+
+**結論**: 最終提出2枠の選び方はトレードオフ（ヘッジの強さ vs 期待値の高さ）であり、
+ここでの103_の結果は「15%という控えめな追加では実質的にヘッジにならない」ことを
+示すデータ点として記録する。最終的な2枠選択はユーザー判断。
+
+関連: [[private-lb-variance-strategy]] [[best-submission-status]] [[refit-chaos-noise-floor]]
+
+# 144. 104_autogluon_bagsets3_on_77_features を作成、Colab投入待ち
+
+102_の「3回別々にfit()を呼ぶ」は乱数がAutoGluon内部に伝播せず失敗（3シードが完全同一の
+結果、#140参照）。WebSearchでAutoGluon公式ドキュメント(TabularPredictor.fit)を確認し、
+複数回バギングを正しく行う`num_bag_sets`パラメータを発見。公式説明:
+"Values greater than 1 will result in superior predictive performance, especially on
+smaller problems and with stacking enabled (reduces overall variance)" ——本プロジェクトの
+状況(Train約2,700行の小規模問題・num_stack_levels=1)に正確に合致する。
+
+`num_bag_sets=3`(num_bag_folds=8×3=24バギングモデルを1回のfit()内で学習)に置き換えて
+104_を作成。TIME_LIMIT=14400秒(4時間、ユーザー承認: 夜間実行前提。102_の7200秒/fitは
+実測58分で早期終了しており余裕があったため引き上げ)。診断として102_の
+weighted_avg3seedとのMADも計算し、[[refit-chaos-noise-floor]]の0.02122を超えていれば
+今度こそ実際に異なる予測が生成できたことを確認する設計。
+
+ローカルでは特徴量エンジニアリング部分のみdry-run済み（447列、ag_full(2761,449)を確認）。
+
+関連: [[l2-m-risk-count-confirmed]] [[refit-chaos-noise-floor]] [[best-submission-status]]
+
+# 145. 104_autogluon_bagsets3_on_77_features Public結果——AutoGluon新特徴量統合を最終的に打ち切り
+
+**Public 0.522966**。旧プールC(0.514050)比+0.008916、102_(0.520798)比+0.002168。
+いずれも単体AutoGluonのノイズ床(0.024〜0.037)未満で個別には判定不能。
+
+診断: 102_のweighted_avg3seedとのMAD — weighted=0.01757(ノイズ床0.02122未満)、
+best_single=0.02165(床をわずかに超え本物の差)。num_bag_sets=3は構造的には正しく機能した
+（24バギングモデルを確認済み）が、102_の「完全同一」からは改善したものの劇的な違いには
+至らなかった。
+
+**最終判断**: 102_・104_という独立した2回の試行がいずれも旧プールCより悪い方向
+(0.5208〜0.5230の近い範囲)に着地。個々の差はノイズ床未満でも、2回とも同じ方向・近い値に
+収束したことで確からしさが上がったと判断し、`56_`→`62_`→`102_`→`104_`の4回にわたる
+AutoGluon新特徴量統合の検証をここで最終的に打ち切る。現最良は引き続き`94_add_w25`
+(0.495570)のまま。
+
+memory更新: [[l2-m-risk-count-confirmed]]に追記3を追加(最終打ち切り)、MEMORY.mdの該当行を更新。
+
+関連: [[l2-m-risk-count-confirmed]] [[best-submission-status]] [[refit-chaos-noise-floor]]
+
+# 146. 105_logit_blend_and_stacking 実行結果——logit空間ブレンドは無風、スタッキングは分解能ギリギリ届かず
+
+**注**: 本節はPublic提出結果ではなく、既存の保存済みOOF/Test予測のみを使った純ローカル実験の
+記録。コンペ残り2週間・Public10位（9位差0.00004、1位差0.0125）を受けてユーザー承認済みの
+2方向を検証した。
+
+**タスクA(logit空間 vs 確率空間ブレンド)**: 3ペア(cb134×tabpfn134/cb89×tabpfn89/
+cb144×tabpfn144)いずれも差は±0.0004程度で分解能±0.0043未満。技法として優劣なしと判断。
+
+**タスクB(正則化+入れ子CVスタッキング)**: 6モデル(CB134/TabPFN134/CB89/TabPFN89/
+CB144/TabPFN144、全て同一fold割当)をlogit変換しL2ロジスティック回帰でスタッキング、
+外側5-fold+内側LogisticRegressionCVの二重入れ子で評価。
+
+| 構成 | val(生存者n=2632) |
+|---|---|
+| logit空間等重み平均 | 0.501396 |
+| 93_の事前登録済みargminブレンド | 0.502419 |
+| スタッキング(入れ子CV) | 0.498094 |
+
+対等重み平均-0.003302(分解能未満)、対93_参考ブレンド-0.004325(わずかに分解能超え)。
+事前登録した判定基準「両方に対して分解能超えの改善」を厳密には満たさず、Test予測は
+生成せず不採用。ただし外側5foldすべてで係数が安定しており（tabpfn134/cb144が常に
+最大級の正の重み）、過去の過学習事例より健全な兆候。
+
+memory更新: [[ensemble-oof-overfitting]]に追記7を追加、MEMORY.mdの該当行を更新。
+
+関連: [[ensemble-oof-overfitting]] [[best-submission-status]] [[validation-asymmetry]]
+
+# 147. 106_stacking_override_submission 作成——105_の不採用判定をユーザー指示で上書きしPublic確認へ
+
+`105_`のスタッキング(入れ子CV val=0.498094)は事前登録した判定基準（分解能±0.0043超えの
+改善を両基準に対して満たす）を厳密には満たさなかったため提出ファイルを生成していなかったが、
+コンペ残り2週間・Public10位という状況を踏まえ、ユーザーの明示的指示によりこの回だけ
+ルールを上書きしてPublic確認する。
+
+105_と同一の6モデル・同一設計(logit変換→LogisticRegressionCV、L2正則化)で、全生存者
+データ(n=2632)を使い最終スタッカーを再学習。
+
+最終係数: cb134=0.112, tabpfn134=0.315, cb89=0.008, tabpfn89=0.289, cb144=0.282,
+tabpfn144=0.102（105_の外側5fold平均係数とほぼ一致——安定性を再確認）。
+in-sample val=0.496910(過学習込みの楽観値、参考のみ)。105_の入れ子CV val=0.498094が
+より信頼できる推定。
+
+出力: `data/output/20260905/20260905_106_stacking_override_submission_stacker_override_submission.csv`
+（予測平均0.5857, std0.2919）。Public確認待ち。
+
+関連: [[ensemble-oof-overfitting]] [[best-submission-status]] [[validation-asymmetry]]
+
+# 148. 106_stacking_override_submission Public結果——CV-Public差わずか0.000065、ただし現最良には未達
+
+**Public 0.498029**。105_の入れ子CV推定値(0.498094)との差はわずか**0.000065**——このプロジェクト
+でこれまでで最も精度良く一致した検証・Public対応。ただし現最良94_add_w25(0.495570)には
++0.002459届かず。6モデルスタッキング単体ではxxxx_v4・AutoGluonプールC（OOF未保存のため
+このスタッキング枠組みに未統合）を含む94_add_w25の情報量には及ばなかった。
+
+# 149. 107_stacking_extended_with_reference 作成・Public結果——7モデルに拡張し現最良を更新
+
+148の結果を受け、OOFが保存されている中でxxxx_v4系統に最も近い代替品——`72_reference_pipeline_standalone`
+のR_full（reference著者パイプラインの独立再現、単体val=0.503144、既存6モデルとの相関
+0.85〜0.91）を7つ目として追加。105_/106_と同一設計(logit変換→L2ロジスティック回帰、
+外側5-fold+内側CVの二重入れ子)で再評価。
+
+入れ子CV val=0.486675（6モデル版比-0.0114、分解能±0.0043を大きく超過）。判定基準を
+満たしたためTest予測を生成しPublic提出。
+
+**Public 0.494517——現最良94_add_w25(0.495570)を-0.001053更新し新記録。**
+
+CV-Public差は0.007842に拡大（148の6モデル版0.000065から悪化）。tabpfn144が全5foldで
+負係数、cb89の符号が不安定という多重共線性の兆候があり、一部は過学習として実際に効いていた
+可能性が高い。それでも方向は正しく、実際に現最良を更新した。r_fullの係数は全fold安定して
+最大級(0.6〜0.8)——改善の本質は「スタッキング技法自体」よりも「reference著者パイプライン
+という強い独立候補を、ようやく正しい枠組み(入れ子CV)で統合できたこと」と解釈すべき。
+
+**新記録**: `107_stacking_extended_with_reference`、Public 0.494517
+（`data/output/20260905/20260905_107_stacking_extended_with_reference_stacker7_full_survivor_submission.csv`）。
+
+memory更新: [[best-submission-status]]に107_セクション追加、[[ensemble-oof-overfitting]]に
+追記8を追加、MEMORY.mdの該当2行を更新。
+
+**次の一手候補**: モデル数を増やすほどCV-Public差が広がる傾向が確認されたため、追加候補は
+1つずつ・毎回Publicで確認しながら慎重に進める。xxxx_v4・プールC自体のOOFを新規生成できれば
+（コスト増）さらなる拡張の余地がある。
+
+関連: [[ensemble-oof-overfitting]] [[best-submission-status]] [[validation-asymmetry]]
+
+# 150. 108_extract_autogluon_oof を作成、Colab投入待ち
+
+`107_`の改善後もxxxx_v4・AutoGluonプールC(94_add_w25の主要成分、合計約54%のウェイト)は
+OOFを保存していないためスタッキング枠組みに未統合。xxxx_v4系統は107_のR_full(72_)採用で
+間接的にカバーできたため、残る大きな未統合成分はAutoGluonプールC。
+
+**発見**: AutoGluonのbaggedモデルは`predict_proba_oof()`で**再学習不要・追加計算コスト
+ほぼゼロ**でOOFを取得できる(8-foldバギング時に内部で既に計算・保存済み)。
+`saved_models/20260814/51_autogluon_catboost_bias/full441_full`（プールC構成メンバーの
+1つ、441列旧パイプライン、単体Public 0.514263）のpredictor.pklがDriveに残っているため、
+これを読み込むだけでOOFを抽出できる。
+
+**行順の要点**: AutoGluonに渡した学習データはID列を持たないため、`predict_proba_oof()`が
+返す配列は`51_`のprepare_split(1.0)が作る**入社日ソート順**に対応する。特徴量の再構築は
+不要——`train_persona.sort_values("入社日")`のID順だけを再現すればよい（ローカルで
+dry-run済み、順序が想定通り異なりつつID集合が一致することを確認）。
+
+Test予測は51_保存済みの`20260814_51_autogluon_catboost_bias_AG51_full441_weighted_testpreds.npy`
+をそのまま流用（test_persona順で他のtest予測と揃っているため再計算不要）。
+
+出力: r_poolc51_oofpreds.npy（train_ids順）。サニティチェックとして生存者OOF loglossを
+51_の既知のPublic水準(0.514263)と比較する設計。Colabに投入し、GPU不要・低コストでの
+実行結果待ち。
+
+関連: [[ensemble-oof-overfitting]] [[best-submission-status]] [[refit-chaos-noise-floor]]
+
+# 151. 108_の抽出結果と109_/110_の作成——AutoGluonプールC系統を8モデル目として追加
+
+`108_`のOOF抽出成功: r_poolc51単体生存者val=0.504162。既存7モデルとの相関0.78〜0.93
+（cb144/tabpfn144とは0.78〜0.84と最も低く、AutoGluonプールC系統ならではの多様性を確認）。
+
+`109_stacking_with_autogluon_oof`で107_の7モデルにr_poolc51を追加し同一設計(logit変換→
+L2ロジスティック回帰、外側5-fold+内側CVの二重入れ子)で再評価。
+
+入れ子CV val=0.484029（107_の7モデル版0.486675比-0.002646、分解能±0.0043未満）。
+r_poolc51の係数は全5foldで安定して正(0.34〜0.43、r_fullに次ぐ2番目の寄与)——構造的には
+健全だが事前登録した判定基準は満たさず。
+
+ユーザー指示: 「107_は変更せず、109_として提出を試す」——現最良107_(Public 0.494517)は
+維持したまま、109_を独立した追加候補としてPublic確認する方針。`110_stacking8_override_submission`
+で109_と同一設計・全生存者データで最終スタッカーを再学習しTest予測を生成。
+
+最終係数: cb134=-0.022, tabpfn134=0.146, cb89=-0.092, tabpfn89=0.213, cb144=0.004,
+tabpfn144=-0.163, r_full=0.724, r_poolc51=0.381（109_の外側5fold平均とほぼ一致）。
+
+出力: `data/output/20260905/20260905_110_stacking8_override_submission_stacker8_override_submission.csv`
+（予測平均0.5879, std0.2956）。Public確認待ち。107_(現最良)は変更なし。
+
+関連: [[ensemble-oof-overfitting]] [[best-submission-status]] [[refit-chaos-noise-floor]]
+
+# 152. 110_stacking8_override_submission Public結果——8モデル拡張は方向逆転、107_を最終形として確定
+
+**Public 0.497002**。現最良107_(0.494517)比+0.002485で悪化。109_の入れ子CV推定
+(0.484029、107_比-0.002646、分解能未満)は改善方向だったが、実際のPublicでは方向が逆転した。
+
+| 拡張 | 入れ子CVの変化 | 実際のPublicの変化 | 方向一致? |
+|---|---|---|---|
+| 6→7モデル(r_full追加、106_→107_) | -0.0114(分解能超え) | -0.0011(改善) | 一致 |
+| 7→8モデル(r_poolc51追加、107_→109_/110_) | -0.0026(分解能未満) | +0.0025(悪化) | 不一致 |
+
+分解能未満の入れ子CV「改善」は方向すら信用できないという[[validation-asymmetry]]の教訓が
+この新しいスタッキング手法でも裏付けられた。前回(105_→106_、106_→107_)は事前登録ルールを
+上書きしても2回とも方向が正しかったため楽観視しかけていたが、今回で「分解能未満は素直に
+不採用にすべき」という原則の正しさが再確認された。
+
+**最終判断**: 現最良は`107_`（Public 0.494517、7モデルスタッキング）で確定。
+AutoGluonプールC系統(r_poolc51)の追加は不採用、8モデル版の路線・OOF拡張によるスタッキング
+の探索はここで一区切りとする。
+
+memory更新: [[ensemble-oof-overfitting]]に追記9を追加、[[best-submission-status]]に
+109_/110_セクション追加、MEMORY.mdの該当2行を更新。
+
+関連: [[ensemble-oof-overfitting]] [[best-submission-status]] [[validation-asymmetry]]
+[[refit-chaos-noise-floor]]
+
+# 153. 111_tabpfn_column_subset_bagging を作成、Colab投入待ち
+
+TabPFNの列数削減路線（89列が最良点として確定済み、[[tabpfn-ensemble-partner]]）に続く
+未着手の方向として、「列数」ではなく「列の組み合わせ」の軸で多様性を作れるかを検証する
+（ユーザー承認済み、以前提示した4候補の3番目）。
+
+設計: 447列プールから一様ランダムに89列を選ぶサブセットをK=15個生成（重要度は使わない、
+93_の選択とは独立、fold間で固定）。各サブセットでTabPFNをリークなしKFold OOF
+（部署Target Encodingは各foldの学習データだけで再計算、93_と同じリーク対策）で評価し、
+K個の予測を平均するランダムサブスペース法。比較基準は93_のtabpfn89単体(OOF val=0.503880、
+Public 0.504065)。CatBoostは対象外（TabPFNの列サブセット多様性のみを検証）。
+
+ローカルでは特徴量エンジニアリング部分のみdry-run済み（447列、tabpfnモジュールをスタブ化）。
+ランダムサブセット生成ロジックも別途検証済み（K=15個、各89列ユニーク、サブセット間で
+部分的な重複はあるが完全一致はない）。
+
+出力: tabpfn_bagged_classifier（K個の平均）+ 各サブセット・バギング平均のOOF/Test .npy
+（後日107_のスタッキングに追加検討できるように保存）。Colabに投入し、GPU Runtimeでの
+実行結果待ち。
+
+関連: [[tabpfn-ensemble-partner]] [[validation-asymmetry]] [[ensemble-oof-overfitting]]
+
+# 154. 111_tabpfn_column_subset_bagging 実行結果——決定的に失敗、Public提出見送り
+
+**注**: Public提出結果ではなく、OOF局所結果のみの記録。提出は見送った。
+
+| | val(OOF) |
+|---|---|
+| 93_のtabpfn89(重要度選択、単体) | 0.503880 |
+| ランダム89列サブセット(個別、K=15個の範囲) | 0.547〜0.603 |
+| バギング平均(15個平均) | 0.550316 |
+
+93_比+0.0464の大幅悪化——分解能±0.0043を遥かに超える、TabPFN関連実験で最も明確な失敗。
+15個全ての個別サブセットが重要度選択版に遠く及ばず、バギングによる分散低減も個々の弱さを
+全く救えなかった。
+
+**結論**: TabPFNにとって「89列」という数値そのものではなく、CatBoostの重要度で選んだ
+"どの"89列か（L2xM交互作用等の高情報量列）が本質的に重要だと判明。ランダム列サブセットの
+バギングという方向はここで完全に不採用、Public提出は行わない。93_の重要度選択89列が
+引き続き確定の最良構成。
+
+memory更新: [[tabpfn-ensemble-partner]]に追記を追加、MEMORY.mdの該当行を更新。
+
+関連: [[tabpfn-ensemble-partner]] [[ensemble-oof-overfitting]] [[validation-asymmetry]]
+[[best-submission-status]]
+
+# 155. 112_catboost_top30pct_retune 実行結果——方向は正しいが分解能未満、不採用
+
+**注**: Public提出結果ではなく、ローカルCPU実行のOptuna再チューニング結果の記録。
+提出は見送った。
+
+`84_TOP30PCT_nested`（134列、単層CatBoost現最良、Public 0.509500）のA_PARAMSは
+441/444列時代にチューニングされたまま一度も再調整されていなかったため、
+[[hyperparameter-retuning-exhausted]]の「未調整の値は再探索が効く」という知見に基づき
+再挑戦した。ユーザー指摘（データ数への配慮）を受け、目的関数を3seed(42,2024,7)×
+5-fold repeated_random_kfold_oofで評価し、Optuna試行数も30回に抑えた設計。
+
+| | 3seed平均val(生存者n=2632) |
+|---|---|
+| 現行A_PARAMS(ベースライン) | 0.522358 |
+| Optuna再探索後(30試行) | 0.519177 |
+
+改善幅+0.003181——方向は正しいが分解能±0.0043には届かず。事前登録ルール通り不採用、
+Test予測は生成せず。直前の109_/110_の教訓（「分解能未満の改善は方向すら信用できない」）
+を踏まえ、この回は上書き提出も行わない判断とした。
+
+**結論**: TOP30PCTの再チューニングは「一度も調整されていないが改善幅が分解能未満」という
+新しい3つ目のパターンに該当（従来は既調整済み=悪化・未調整=明確改善の二分法だった）。
+134列に縮小しても441列時代のA_PARAMSは既に良い解の近傍にあったと解釈できる。
+ユーザーが事前に提示した4候補（1.logit空間ブレンド／2.正則化+入れ子CVスタッキング／
+3.TabPFN列サブセットバギング／4.TOP30PCT再チューニング）は全て実行完了。
+
+memory更新: [[hyperparameter-retuning-exhausted]]に2026-09-05追記を追加、MEMORY.mdの
+該当行を更新。
+
+関連: [[hyperparameter-retuning-exhausted]] [[best-submission-status]] [[validation-asymmetry]]
+[[ensemble-oof-overfitting]]
+
+# 156. 113_stacking_calibration 実行結果——事後較正は無風〜有害、107_はこれ以上調整不要
+
+**注**: Public提出結果ではなく、ローカルsklearn実行の結果。提出は行わなかった。
+
+107_のスタック出力(logit変換7モデル→L2ロジスティック回帰)にPlatt scaling/isotonic回帰の
+事後較正を二重入れ子CVで追加検証。
+
+| | val(入れ子CV) | 対未較正 |
+|---|---|---|
+| 未較正(meta_oof、107_と同一val=0.486675) | — | — |
+| Platt scaling | 0.487032 | +0.000357(無風) |
+| Isotonic回帰 | 0.515702 | +0.029027(大幅悪化) |
+
+107_のスタッカーは既にログロスを直接最適化するロジスティック回帰であるため、Platt scaling
+（ロジスティック回帰をロジスティック回帰で再較正する操作）は理論通り無風。Isotonic回帰は
+柔軟性ゆえに小さい較正用データ(1/5=約526件)に過学習し大幅悪化。事後較正は不採用、
+提出なし。
+
+# 157. 114_lightgbm_on_84_top30pct / 115_stacking_with_lightgbm 実行結果——LightGBMの重度な過学習を発見・修正し8モデル目として現最良を更新
+
+`114_`は当初n_estimators=560固定・early stoppingなしでval=0.687〜0.697という壊滅的な
+結果になった。診断（corr(pred,y_true)=0.53で方向は学習できているのに、predict_probaが
+0.0001〜0.9998まで極端に振れる）により重度の過学習と判明。原因は`astype("category")`を
+train/val別々のフレームに独立適用しカテゴリコードが食い違うバグを最初に疑ったが（ローカルで
+再現・修正済み、train categories=['x','y','z']→x=0,y=1,z=2 vs val categories=['x','y']→
+x=1,y=0の反転を確認）、修正後も同一の壊滅的val(0.696590)が再現され、**真因は別**（過学習）
+と判明。CatBoostのA_PARAMS相当の保守的設定+fold学習データの15%をinternal validationに
+回すearly stopping(50ラウンド)に変更しval=0.549972まで回復（CatBoost134/TabPFN134には
+劣るが、[[catboost-beats-other-gbdt]]の既知パターンとして妥当）。
+
+`115_`で107_の7モデルに8つ目として追加、105_/107_/109_と同一設計で再評価:
+
+| | val(入れ子CV) | Public |
+|---|---|---|
+| 107_(7モデル、旧最良) | 0.486675 | 0.494517 |
+| **115_(8モデル、lgbm134追加)** | **0.482271** | **0.493891（新記録）** |
+
+入れ子CV改善-0.004404は分解能±0.0043を僅かに(0.0001差で)クリアし、事前登録ルールにより
+自動的にTest予測を生成・提出。**Public実測は-0.000626改善——方向は一致したが予測改善幅の
+約1/7に縮小した。** lgbm134の係数は全5foldで一貫して負(-0.14〜-0.43)——109_のr_poolc51と
+同型の危険信号だったが、今回は方向が反転しなかった。
+
+**3例そろった「7→8モデル拡張」の記録**:
+
+| 拡張 | 入れ子CVの変化 | 実際のPublicの変化 | 方向一致? |
+|---|---|---|---|
+| 6→7(r_full追加、106→107) | -0.0114(分解能を大幅超え) | -0.0011(改善) | 一致 |
+| 7→8a(r_poolc51追加、107→109/110) | -0.0026(分解能未満、上書き) | +0.0025(悪化) | 不一致 |
+| 7→8b(lgbm134追加、107→114/115) | -0.0044(僅かに分解能超え) | -0.0006(改善) | 一致 |
+
+**結論**: 「入れ子CVの改善が分解能±0.0043を正規にクリアしていれば方向は信頼できる」という
+[[validation-asymmetry]]の中核原則がこのスタッキング手法でも一貫して裏付けられた。
+現最良は`115_`（Public 0.493891）に更新。
+
+memory更新: [[ensemble-oof-overfitting]]に追記10・11を追加、[[best-submission-status]]に
+114_/115_セクション追加、MEMORY.mdの該当2行を更新。
+
+関連: [[ensemble-oof-overfitting]] [[best-submission-status]] [[validation-asymmetry]]
+[[catboost-beats-other-gbdt]]
+
+# 158. 116_xgboost_on_84_top30pct / 117_stacking_with_xgboost 実行結果——XGBoostはLightGBMと相関0.98、9モデル目としては無価値
+
+**注**: Public提出なし。ローカル実行のみで判定完了。
+
+`116_`は114_の教訓（early stoppingなしでの重度過学習）を最初から反映した設計で構築し、
+健全な結果を確認（fold0 val=0.5345、単体val=0.537346）。CatBoost134/TabPFN134には
+劣るがLightGBM134よりは僅かに良い、妥当な水準。
+
+`117_`で115_の8モデルに9つ目として追加したところ、xgb134とlgbm134の相関が**0.9816**
+（既存のどのペアよりも高い）。9モデルスタッキングの入れ子CV val=0.482320は115_の
+8モデル版(0.482271)比+0.000049——改善どころかごく僅かに悪化。分解能を超えるどころか
+方向すら改善しておらず、明確な不採用（上書き提出の検討すら不要）。
+
+**結論**: LightGBM/XGBoostという2つのGBDT機構をどちらもスタックに入れる意味はない
+——片方(LightGBM)で十分カバーされている。現最良は`115_`(Public 0.493891)のまま。
+
+memory更新: [[ensemble-oof-overfitting]]に追記12を追加。
+
+関連: [[ensemble-oof-overfitting]] [[best-submission-status]] [[catboost-beats-other-gbdt]]
+
+# 159. 118_/119_/120_ 実行結果——「新プール×新機構」セルは相関最低だが改善は分解能未満、非線形メタモデルも無価値
+
+**注**: Public提出なし。ローカル実行のみで判定完了。
+
+`118_lightgbm_on_xxxxv4_144pool`はxxxx_v4独自144列プールにLightGBM単体を適用（114_/116_
+の教訓を反映したearly stopping設計、単体val=0.589197）。`120_`で115_の8モデルに9つ目
+として追加したところ、既存モデルとの相関は0.72〜0.84とこれまでで最低（狙い通り
+「xxxx_v4系×LightGBM」という新しい組み合わせで多様性が高い）。9モデルスタッキングの
+入れ子CV val=0.480627は115_の8モデル版(0.482271)比-0.001644——方向は改善だが分解能
+±0.0043未満のため、109_/115_で確立した規律に従い上書き提出はせず不採用。
+
+並行して`119_`で最終層を非線形（浅いHistGradientBoostingClassifier）に変更する検証も
+実施したが、val=0.482304（線形の0.482271とほぼ同一）——8特徴量規模では非線形化の
+余地は無いと確認された。
+
+**結論**: 現最良は`115_`(Public 0.493891)のまま。スタッキングのモデル追加・メタモデル
+非線形化、双方ともこれ以上の伸び代は乏しい。
+
+memory更新: [[ensemble-oof-overfitting]]に追記13を追加。
+
+関連: [[ensemble-oof-overfitting]] [[best-submission-status]] [[validation-asymmetry]]
+
+# 160. 121_tabpfn_on_xxxxv4_selected を作成、Colab投入待ち
+
+`99_`でxxxx_v4独自144列プールにTabPFNを適用した際はFULL構成（列選択なし）で、
+CatBoost比+0.0144悪化だった。しかし84_プールでは「TabPFNは重要度で絞った89列(20%)が
+最適」という強い知見が確立しており(93_)、xxxx_v4プールに対してはこの列選択を一度も
+試していなかった。
+
+93_と同一設計（CatBoost重要度上位20%を各foldの学習データだけで選び直す、選択リークを
+避ける）でxxxx_v4独自144列プールを約29列に絞り、CatBoost/TabPFNをリークなしKFold OOF
+で比較する。xxxx_v4プールは部署頻度エンコーディングのみ(target非依存)のため、
+特徴量自体はfold間で再構築不要——選択ステップだけをfoldごとにやり直す設計。
+
+期待: 84_プールで見られたTabPFNの逆転(CatBoost比で単体優位)がxxxx_v4プールでも
+起きれば、既存の115_スタックに対して「xxxx_v4系プール由来・低相関・かつ高性能」という、
+r_poolc51/lgbm144（低相関だが弱い）とは異なる有望な追加候補になる。
+
+ローカルでは特徴量エンジニアリング部分のみdry-run済み（144列→TOP20PCTで29列を確認）。
+
+出力: cb_selected_classifier / tabpfn_selected_classifier / blend_argmin
+（+ OOF・Test予測を.npyで保存し、後日スタッキングに使用）。Colabに投入し、GPU Runtime
+での実行結果待ち。
+
+関連: [[tabpfn-ensemble-partner]] [[validation-asymmetry]] [[best-submission-status]]
+
+# 161. 121_tabpfn_on_xxxxv4_selected 実行結果——xxxx_v4プールでの列選択はTabPFNを悪化させる、111_の知見を裏付け
+
+**注**: Public提出結果ではなく、Colab実行完了後のOOF局所結果の記録。提出は見送った。
+なお、`121_`のCB_selectedのOOF(.npy)がDrive経由で正しく同期されず(既知のDrive共有ファイル
+の同期ラグ、[[checkpoint-drive-sync-gotcha]]と同系統)、ローカルでCatBoost部分のみ再計算
+して復元した(TabPFNは不要な純CatBoost計算のためGPU不要、ローカルCPUで再現可能)。
+
+93_と同一設計でxxxx_v4独自144列プールを144列→29列(重要度上位20%)に絞り、CatBoost/TabPFN
+をリークなしKFold OOFで評価。
+
+| | val(OOF) | 参考(FULL構成) |
+|---|---|---|
+| CB_selected(29列) | 0.532572 | 97_のCB144(FULL)=0.528230(悪化) |
+| TabPFN_selected(29列) | 0.545854 | 99_のTabPFN144(FULL)=0.542703(悪化) |
+| ブレンドargmin(w_cb=0.7) | 0.530797 | — |
+
+**予想に反し、列削減はTabPFNを改善するどころか悪化させた**（84_プールでの単調改善傾向とは
+逆方向）。`111_`（ランダム89列サブセットバギングが大幅悪化）で確立した知見——「TabPFNの
+強さは89列という数ではなく、重要度で選んだどの89列か(L2xM交互作用等の高情報量列)が本質」
+——を追加で裏付ける結果。xxxx_v4プールは素朴な平均/標準偏差集約のみでL2xM等の交互作用
+特徴量を一切持たないため、重要度で列を絞ってもTabPFNが好む種類の情報自体が増えなかった。
+
+**結論**: CB_selected/TabPFN_selectedとも既存のcb144/tabpfn144(FULL版、115_スタックに
+既に含まれる)に厳密に劣るため新しい追加候補としての価値は無い。Public提出は不要、この
+方向は不採用で終了する。「TabPFNは列数を絞ると強くなる」という一般化は、当該プールが
+交互作用特徴量を持つ場合に限ることが、xxxx_v4プールとランダムサブセット(111_)という
+2つの独立した反証で確定した。
+
+memory更新: [[tabpfn-ensemble-partner]]に追記2を追加。
+
+関連: [[tabpfn-ensemble-partner]] [[ensemble-oof-overfitting]] [[validation-asymmetry]]
+[[best-submission-status]] [[checkpoint-drive-sync-gotcha]]
+
+# 162. 122_autogluon_on_89col_pool 作成——ユーザー指定「劇的変化」案C: AutoGluonに初めて89列プールを投入
+
+「ダメ元でも良いので劇的変化が期待される案」の提示に対し、ユーザーは案A(LLM系テキスト特徴量、
+商用利用不可のため却下)・B(疑似ラベリング)・C(AutoGluonへの89列プール投入)のうちB採用、
+Cは並行実行可能なら実施、と回答。ColabのGPU/長時間実行が必要なCを先行して用意した。
+
+AutoGluon(51_/104_など)にはこれまで常にFULL 441列(旧世代)または447列(102_/104_、77_パイプ
+ライン)しか投入したことがなく、TabPFN/CatBoostにとって列数チューニングの最適点と判明済みの
+89列(93_のTOP20PCT_nested選択、単体でCatBoostを初めて上回りPublic現最良0.495570に貢献)を
+AutoGluonに投入する、という機構×特徴量プールの未検証の組み合わせを埋める。
+
+設計:
+- 93_の特徴量エンジニアリング共有部分(build_features/_feature_cols)をそのまま再利用
+- Train全件でCatBoost重要度Top20%選択を1回実行し447列→89列に絞る(93_と同一手順、
+  リーク回避目的の per-fold nested選択ではなく提出用フレーム構築のための単純選択)
+- AutoGluon設定は104_で確立したnum_bag_sets=3(8fold×3set=24バギングモデル、
+  seed_everything()による偽の多シード化バグを修正済みの設計)をそのまま踏襲
+- 108_で確立したpredict_proba_oof()によるOOF抽出(再学習不要)を最初から組み込み
+- 93_のbuild_features()は入社日で行をソートしないため、108_で必要だった行順復元は不要
+
+ローカルで特徴量エンジニアリング〜89列選択部分をdry-run済み: 447列→89列選択
+(ag_full: (2761, 90), ag_test: (2502, 89))を確認、実行時間 約2分50秒。
+py_to_colab_ipynb.pyでColab用.ipynb化、pip installセルをautogluon.tabular+catboostに
+手動修正、Drive mount/447列assert/NUM_BAG_SETS=3/predict_proba_oof等のキーマーカーが
+全て変換後notebookに存在することを確認済み。
+
+Colabへの投入・GPU Runtimeでの実行はユーザー側で実施予定(TIME_LIMIT=14400秒、
+104_同様に数時間規模)。参考値: 93_のTabPFN89 Public=0.504065、93_のCB89 local val=0.518415、
+旧世代poolC(51_) Public=0.514050。
+
+**102_/104_の教訓(L2xM等の447列由来の細粒度特徴量はAutoGluonの441列アーキテクチャに
+うまく移行しなかった)とは逆方向の問い**——今回は列を「削る」方向でTabPFN/CatBoostに
+効いた89列の情報密度がAutoGluonの内部アンサンブル機構でも活きるかを検証する。
+
+関連: [[autogluon-stacking-wins]] [[l2-m-risk-count-confirmed]] [[tabpfn-ensemble-partner]]
+[[best-submission-status]]
+
+# 163. 123_pseudolabel_cb89_poc / 124_stacking_with_cb89_pseudo 実行結果——案B(疑似ラベリング)は単体で成功も8モデルスタックでは効果消失、不採用
+
+**注**: Public提出結果ではなく、ローカルCPU実行完了後のOOF局所結果の記録。提出は見送った。
+
+「ダメ元でも良いので劇的変化が期待される案」への回答としてユーザーが承認した案Bを実施。
+疑似ラベル源は115_の8モデルスタッキングのTest予測(Public現最良0.493891)。93_のCB89
+(84_TOP20PCT_nested、89列)と全く同一のネストされた5-fold(seed=42)OOF設計を再現し、
+各foldでfold_train_idsのみでbuild_features()を呼んだleak-avoidedなTest特徴量に対し、
+閾値t(低信頼<t、高信頼>1-t)を超える行をhard label化してfold学習データに追加、未汚染の
+実val foldで比較。t∈{0.02,0.05,0.10,0.15,0.20,0.25,0.30,0.40,0.50}をスキャン。
+
+| t | 疑似ラベル行数 | val(CB89単体) | 対ベースライン(0.521296) |
+|---|---|---|---|
+| 0.02 | 35 | 0.519134 | +0.002162 |
+| 0.05 | 180 | 0.518286 | +0.003010 |
+| 0.10 | 570 | 0.516137 | +0.005158 |
+| **0.15** | **946** | **0.515789** | **+0.005507(分解能±0.0043クリア)** |
+| 0.20 | 1269 | 0.517392 | +0.003904 |
+| 0.25 | 1515 | 0.516913 | +0.004383 |
+| 0.30 | 1734 | 0.518885 | +0.002411 |
+| 0.40 | 2161 | 0.524781 | -0.003485(悪化) |
+| 0.50(全件) | 2502 | 0.520060 | +0.001235 |
+
+t=0.15でピークを打ち、t=0.40で悪化に転じる山型カーブ——単調増加ではなく理論通りの
+自己学習挙動が観測され、単なるノイズではなく本物のシグナルであることを示唆する。
+
+続いて`124_stacking_with_cb89_pseudo.py`で115_の8モデルスタックのcb89をcb89_pseudo
+(t=0.15版)に置換し同一の入れ子CV評価を実施。cb89_pseudoと元のcb89の相関=**0.964**、
+スタック全体の入れ子CV改善は+0.001110——分解能±0.0043を大きく下回り不採用
+(判断はユーザーに委ねる、と script は出力したが、事前登録ルールに従い上書き提出はしない)。
+
+**結論**: 疑似ラベリング(自己学習)自体は理論通りに機能する本物の技法と確認できたが、
+89列プール×CatBoostという既にスタックの中核を占める機構への適用では、既存メンバーとの
+高相関により実質的な上乗せがほぼゼロになる。今後の可能性として、既存メンバーとの相関が
+低いモデル(r_full、lgbm134など)への同技法の適用は未検証で、次に試す価値がある。
+
+memory更新: 新規[[pseudolabel-selftraining-finding]]を作成。
+
+関連: [[pseudolabel-selftraining-finding]] [[monthly-data-information-ceiling]]
+[[ensemble-oof-overfitting]] [[validation-asymmetry]] [[best-submission-status]]
+
+# 164. 125_pseudolabel_lgbm134_poc / 127_stacking_with_lgbm134_pseudo 実行結果——候補1(lgbm134)はwinner's curse、不採用で終了
+
+**注**: Public提出結果ではなく、ローカルCPU実行完了後のOOF局所結果の記録。提出は見送った。
+
+「候補1(lgbm134)→候補2(r_full)の順で実施」のうち候補1。114_のlgbm134(84_TOP30PCT_nested
+134列にLightGBM)に123_と同一設計の疑似ラベリングを適用。
+
+| t | val | 対ベースライン(0.549972) |
+|---|---|---|
+| 0.02 | 0.543392 | +0.006580 |
+| 0.05 | **0.538814** | **+0.011158(最良)** |
+| 0.10 | 0.546839 | +0.003133 |
+| 0.15 | 0.544252 | +0.005720 |
+| 0.20 | 0.552236 | -0.002264(悪化) |
+| 0.25 | 0.540013 | +0.009959 |
+| 0.30 | 0.543642 | +0.006330 |
+| 0.40 | 0.547168 | +0.002804 |
+| 0.50 | 0.541182 | +0.008790 |
+
+123_のCB89のような山型(単調→ピーク→減衰)ではなく**非単調でギザギザ**——t=0.10やt=0.20で
+急落するなど、winner's curseが疑われるパターン。それでも最良のt=0.05は分解能±0.0043を
+クリアしたため、事前登録ルールに従い124_と同じ2段階検証フローの後半を実施。
+
+`127_stacking_with_lgbm134_pseudo.py`で115_の8モデルスタックのlgbm134をlgbm134_pseudo
+(t=0.05版)に置換して同一の入れ子CV評価を実施。lgbm134_pseudoと元lgbm134の相関=**0.966**、
+スタック全体の入れ子CVは**悪化**(stack_val=0.485287、対115_基準+0.003016)——単体の
+「改善」がwinner's curseだったことが確定。候補1は不採用で終了。
+
+**教訓**: 閾値グリッドから最良を選ぶ設計は多重比較のリスクを孕む。CB89のような理論通りの
+山型カーブが出た場合のみ単体改善を信頼でき、lgbm134のような非単調カーブは単体で分解能を
+クリアしていてもスタックレベルで容易に反転する。
+
+memory更新: [[pseudolabel-selftraining-finding]]に追記。
+
+続けて候補2(r_full、`126_pseudolabel_rfull_poc.py`)をローカルで実行開始。
+
+関連: [[pseudolabel-selftraining-finding]] [[ensemble-oof-overfitting]]
+[[ablation-cannot-settle-feature-blocks]] [[validation-asymmetry]]
+
+# 165. 126_pseudolabel_rfull_poc / 128_stacking_with_rfull_pseudo 実行結果——候補2(r_full)はプロジェクト最大の改善だが異常な規模・パターンで提出保留
+
+**注**: Public提出結果ではなく、ローカルCPU実行完了後のOOF局所結果の記録。**Publicには提出していない**。
+
+「候補1(lgbm134)→候補2(r_full)」のうち候補2。72_reference_pipeline_standalone(115_の
+8モデルスタックで全fold一貫して最大の係数(約+0.8)を持つ主力モデル)に123_/125_と同一の
+疑似ラベリング設計を適用(閾値スキャンのコスト抑制のため、72_オリジナルの3シード平均
+ではなく単一seed(42)の5-fold OOFで比較)。
+
+| t | val | 対ベースライン(0.510980) |
+|---|---|---|
+| 0.02 | 0.509335 | +0.001645 |
+| 0.05 | 0.504675 | +0.006305(分解能クリア) |
+| 0.10 | 0.499804 | +0.011177 |
+| 0.15 | 0.498226 | +0.012754 |
+| 0.20 | 0.490936 | +0.020045 |
+| 0.25 | 0.488810 | +0.022170 |
+| 0.30 | 0.484324 | +0.026657 |
+| 0.40 | 0.481203 | +0.029778 |
+| **0.50(全件)** | **0.479488** | **+0.031492(最良、このプロジェクト史上最大の単発改善)** |
+
+CB89(123_)のような山型ピークが一切無く、**単調に改善し続けt=0.50(Test全2502件を疑似
+ラベルとして追加)で最良**という、理論的な自己学習カーブと矛盾するパターン。t=0.05
+(180行)時点で既に分解能クリアなので極端な全件投入だけが効いているのではなさそうだが、
+pseudo版のTest予測は元より大幅に極端化している(std: 0.249→0.374、mean: 0.596→0.670)。
+
+`128_stacking_with_rfull_pseudo.py`で115_の8モデルスタックのr_fullを置換して再評価:
+rfull_pseudoと元r_fullの相関=0.937、スタック全体も改善(stack_val=0.476221、対115_基準
+**-0.006050、分解能をクリア**)。事前登録ルール上は採用条件を満たすが、以下の理由で
+**Public提出を保留しユーザーに判断を仰ぐ**:
+1. 規模がこのプロジェクト全実験を通じて一桁大きい(+0.03台は前例なし)
+2. Test予測の極端化——自分自身の予測を再学習した自己強化/過信の懸念
+3. 単一seedでの評価であり、72_オリジナルの3シード平均という設計から外れている
+
+memory更新: [[pseudolabel-selftraining-finding]]に追記(保留中として明記)。
+
+関連: [[pseudolabel-selftraining-finding]] [[ensemble-oof-overfitting]]
+[[ablation-cannot-settle-feature-blocks]] [[validation-asymmetry]] [[best-submission-status]]
+
+# 166. 128_stacking_with_rfull_pseudo Public提出結果——史上最大の反転(+0.0706)、疑似ラベリング3候補すべて不採用で完全終了
+
+**ファイル名**: 20260905_128_stacking_with_rfull_pseudo_stacker8_rfullpseudo_full_survivor_submission.csv
+**Public**: 0.5644421851160738（115_基準0.493891比 **+0.070551 大幅悪化**）
+**提出日時**: 2026.09.05 20:43:14
+
+165番のエントリで報告した通り、局所入れ子CVは-0.006050(分解能±0.0043を大幅にクリア)を
+示していたが、ユーザーが「いったん提出して考える」方針で提出した結果、Public実測は
+**+0.070551の悪化**——このプロジェクト史上最大の検証・Public反転(従来最大は109_の
++0.0025、その28倍)。事前に懸念していた「pseudo版Test予測の極端化(std 0.249→0.374)」
+「単一seedでの評価」という2点のうち、前者(過信・自己強化)が実際の原因だったと考えられる。
+
+**原因の特定**: 疑似ラベル源(115_の8モデルスタックのTest予測)において、r_full自身が
+支配的な重み(約+0.8)を持っていたため、r_fullを「r_full自身の意見が強く反映された
+Test予測」で再学習させる、ほぼ純粋な自己参照ループが生じていた。Train側のheld-out fold
+は疑似ラベルに一切触れないため、この循環はTrainベースの入れ子CVには一切現れず、Test側
+でのみ致命的な誤較正として顕在化する——**分解能±0.0043という閾値が原理的に検出できない
+新しい失敗モード**であることが確定した。
+
+**疑似ラベリング(自己学習)3候補の最終結果**:
+| 候補 | 単体改善(分解能クリア?) | スタック改善(分解能クリア?) | Public | 判定 |
+|---|---|---|---|---|
+| CB89(123_/124_) | +0.0055(○、山型カーブ) | +0.0011(✗) | 未提出 | 不採用 |
+| lgbm134(125_/127_) | +0.0112(○、非単調=winner's curse) | -0.0030(悪化) | 未提出 | 不採用 |
+| r_full(126_/128_) | +0.0315(○、単調=循環の疑い) | -0.0060(○) | **+0.0706悪化** | **不採用** |
+
+3候補すべて不採用で確定。疑似ラベリング(自己学習)の方向はこのプロジェクトでは完全に
+終了する。現最良は引き続き`115_`(Public 0.493891)。
+
+memory更新: [[pseudolabel-selftraining-finding]]に最終確定として追記、
+[[ensemble-oof-overfitting]]に追記14として新しい失敗モード(循環的自己強化)を記録。
+
+関連: [[pseudolabel-selftraining-finding]] [[ensemble-oof-overfitting]] [[validation-asymmetry]]
+[[best-submission-status]]
+
+# 167. 最終提出2枠をユーザーが確定——115_と74_final6
+
+疑似ラベリング3候補(123_/125_/126_)が全て不採用で終了したことを受け、最終提出2枠を
+ユーザーが確定した:
+
+1. `data/output/20260905/20260905_115_stacking_with_lightgbm_stacker8_lgbm_full_survivor_submission.csv`
+   （現最良、Public 0.493891）
+2. `data/output/20260819/20260819_74_seed_fold_scaling_on_54_final6_ensemble_mean.csv`
+   （AutoGluon不使用の6モデル等重みアンサンブル、Public 0.501006、現最良との相関0.9859で
+   分散低減ヘッジ、[[private-lb-variance-strategy]]の方針に沿った選択）
+
+memory更新: [[best-submission-status]]に最終決定として追記。
+
+関連: [[best-submission-status]] [[private-lb-variance-strategy]] [[pseudolabel-selftraining-finding]]
+
+# 168. 最終提出2枠目を74_final6→75_final5に差し替えて確定
+
+167番の`74_final6`選択後、ユーザーから「74_final6以外の候補は?」と問われ調査したところ、
+`75_tuned_ensemble`のfinal5アンサンブル(54_tuned+xxxx_tuned+TabPFN×2_tuned+TabICL_tuned、
+等重み)が判明した。相関を確認:
+
+| 候補 | Public | 115_との相関 |
+|---|---|---|
+| 74_final6 | 0.501006 | 0.9789 |
+| **75_final5** | **0.500566** | 0.9780 |
+| poolC(旧AutoGluonプール) | 0.514050 | 0.9431 |
+
+74_final6と75_final5は相関**0.9985**とほぼ同一物（54_/xxxx_v4/TabPFN/TabICLの一部を共有）
+——分散低減という目的では実質差が無く、75_final5の方がPublicスコアが僅かに良いだけ。
+poolCは115_との相関が明確に低い(0.943)が、Publicが0.013悪く代償が大きすぎる。
+
+ユーザーに希望が無かったため、Publicスコアが僅かに良く相関プロファイルもほぼ同じ
+75_final5への差し替えを提案・採用。**最終提出2枠を以下で確定**:
+1. `data/output/20260905/20260905_115_stacking_with_lightgbm_stacker8_lgbm_full_survivor_submission.csv`
+2. `data/output/20260820/20260820_75_02_final_ensemble_final5_ensemble_mean.csv`
+
+memory更新: [[best-submission-status]]を最終確定として更新。
+
+関連: [[best-submission-status]] [[private-lb-variance-strategy]]
+
+# 169. 122_autogluon_on_89col_pool 実行完了 / 129_stacking_with_autogluon89 実行結果——案C的中、プロジェクト最大級の入れ子CV改善
+
+「1〜128番の確認漏れ」監査で発覚した`122_`(案C: AutoGluonに初めて93_のTOP20PCT_nested
+89列プールを投入)を、監査後にユーザーがColab GPUで実行(TIME_LIMIT=14400秒、
+num_bag_sets=3、実測約2時間40分+L2フィッティング)。
+
+**単体結果**: OOF val(生存者)=**0.483221**(weighted)/0.483859(best_single)。
+115_の8モデルスタックの**どの単体モデルよりも良く**(cb89=0.518415, tabpfn89=0.503880,
+r_full=0.503144等)、スタック全体の入れ子CV(0.482271)にほぼ匹敵する水準。102_/104_で
+AutoGluonが447列だと弱かった(Public 0.52台)のは「列が多すぎたから」であり、89列に
+絞ったら本来の力を発揮したという案Cの仮説が的中した。
+
+予測分布の健全性を確認(r_full疑似ラベリングの反省を踏まえ): OOF/Test予測に0/1への
+極端な偏りなし(near-0/1の行数0)、Test std=0.2903はtabpfn89(0.3031)・r_full(0.2493)と
+同程度の範囲——過信・自己強化の兆候は見られない。既存8モデルとの相関は0.80〜0.95
+(cb144/tabpfn144/r_fullとは0.80〜0.86とやや低い)。
+
+**スタック結果**: `129_stacking_with_autogluon89.py`で115_の8モデルに9つ目として追加、
+105_/107_/115_と同一設計で再評価。**入れ子CV val=0.466112——115_基準(0.482271)比
+-0.016159、このプロジェクトで最大の入れ子CV改善**(従来最大は107_のr_full追加による
+-0.0114)。ag89の係数は全5foldで安定して大きな正の値(0.70〜1.03)——lgbm134/r_poolc51の
+不安定な負係数パターンとは対照的な健全な信号。分解能±0.0043を大幅にクリアしたため、
+事前登録ルールに従いTest予測を自動生成した。
+
+**注意**: 過去の経験則(107_:CV-0.0114→Public-0.0011、115_:CV-0.0044→Public-0.0006)から、
+入れ子CV改善の絶対幅はPublicで大幅に縮小するのが通常のパターン。方向は信頼できるが、
+Public実測でのこの規模の改善(-0.016)がそのまま出るとは考えにくい。それでも方向としては
+確度が高いと判断し、Public提出を推奨する。
+
+提出ファイル: `data/output/20260906/20260906_129_stacking_with_autogluon89_stacker9_ag89_full_survivor_submission.csv`
+
+関連: [[best-submission-status]] [[ensemble-oof-overfitting]] [[l2-m-risk-count-confirmed]]
+[[autogluon-stacking-wins]] [[validation-asymmetry]]
+
+# 170. 129_stacking_with_autogluon89 Public結果——史上最大の入れ子CV改善が方向ごと反転、循環参照なしでも起きうる新しい危険信号を発見
+
+**ファイル名**: 20260906_129_stacking_with_autogluon89_stacker9_ag89_full_survivor_submission.csv
+**Public**: 0.506652887212799（115_基準0.493891比 **+0.012762 悪化**）
+**提出日時**: 2026.09.06 22:28:3x
+
+169番で報告した通り、単体ag89(AutoGluon×89列)は健全(予測分布に偏りなし、相関0.80〜0.95、
+循環参照の懸念なし)で、9モデル化した入れ子CVはこのプロジェクト最大の改善(-0.016159)
+だった。しかしPublic実測は**+0.012762の悪化——方向ごと完全に反転**した。
+
+r_full疑似ラベリング(128_、+0.0706の反転)は循環参照という明確な原因があったが、今回は
+循環参照が一切無いモデルでも反転が起きた点が新しい。7→8→9モデル拡張の全記録:
+
+| 拡張 | 入れ子CVの変化 | Publicの変化 | 方向一致? |
+|---|---|---|---|
+| 6→7(r_full追加、**成功**) | -0.0114 | -0.0011(改善) | 一致 |
+| 7→8(lgbm134追加、**成功**) | -0.0044 | -0.0006(改善) | 一致 |
+| 7→8(r_poolc51追加、分解能未満) | -0.0026 | +0.0025(悪化) | 不一致 |
+| 8→8'(r_full pseudo、循環参照) | -0.0060 | +0.0706(壊滅的) | 不一致 |
+| **8→9(ag89追加、原因不明)** | **-0.0162** | **+0.0128(悪化)** | **不一致** |
+
+**新しい規則性**: 成功した2例は入れ子CV改善幅が-0.0044〜-0.0114の範囲。反転した2例は
+いずれもこの範囲を超える-0.0060・-0.0162だった。原因は異なる(循環参照 vs 不明な多重
+共線性由来の過学習)が、「改善幅が過去の成功例の上限を明確に超えて大きい」こと自体が、
+分解能クリアとは独立した危険信号である可能性が高い。
+
+ag89反転の推定原因: 既存モデルとの高相関(0.80〜0.95、特に84_/93_クラスタとは0.94〜0.95)
++ 単体の突出した強さ(既存最強モデルを0.02上回る)が組み合わさり、追加後に選ばれた
+正則化C=0.1931は従来の典型的C=0.1000より緩く、メタ学習器がこの特定の入れ子CV分割固有の
+ノイズにより自由に適合してしまったと考えられる。
+
+**結論**: ag89の115_スタックへの追加は不採用確定。現最良は引き続き`115_`(Public
+0.493891)。単体AutoGluon×89列プールという成果自体([[l2-m-risk-count-confirmed]]追記4)は
+本物で、447列×AutoGluonが4連敗したのとは異なる新しい軸として記録には残す。
+
+memory更新: [[ensemble-oof-overfitting]]に追記15(新しい規則性)、
+[[l2-m-risk-count-confirmed]]に最終確定を追記。
+
+関連: [[ensemble-oof-overfitting]] [[l2-m-risk-count-confirmed]] [[pseudolabel-selftraining-finding]]
+[[best-submission-status]] [[validation-asymmetry]]
